@@ -1,0 +1,3130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STANDHAUS 経営管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#app{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#eef2f7;color:#1e293b}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+textarea,input{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+#app{display:flex;flex-direction:column}
+#topbar{background:#0f3460;padding:0 18px;display:flex;align-items:center;height:50px;gap:12px;flex-shrink:0}
+.tb-logo{font-size:13px;font-weight:800;color:#e2f4f0;letter-spacing:.06em}
+.tb-logo span{color:#4ecdc4;display:block;font-size:9px;font-weight:400;letter-spacing:.1em}
+.tb-div{width:1px;height:28px;background:rgba(255,255,255,.15)}
+.tb-pill{background:rgba(255,255,255,.08);border-radius:8px;padding:5px 12px;min-width:130px}
+.tb-pill-label{font-size:9px;color:#7dd3d0;margin-bottom:1px}
+.tb-pill-val{font-size:13px;font-weight:700;color:#e2f4f0}
+.tb-pill-sub{font-size:9px;color:#5ea8a5;margin-top:1px}
+.tb-alert{margin-left:auto;font-size:10px;color:#fbbf24;background:rgba(251,191,36,.12);padding:4px 10px;border-radius:6px;border:1px solid rgba(251,191,36,.25)}
+#body-wrap{display:flex;flex:1;overflow:hidden}
+#sidebar{width:172px;background:#fff;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid #e2e8f0}
+#sidebar-logo{padding:14px 14px 10px;border-bottom:1px solid #f1f5f9}
+#sidebar-logo h1{font-size:11px;font-weight:700;color:#0f3460;letter-spacing:.05em}
+#sidebar-logo p{font-size:9px;color:#94a3b8;margin-top:1px}
+nav{flex:1;padding:8px 6px}
+.nb{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border-radius:8px;background:transparent;color:#64748b;font-size:11px;font-weight:400;margin-bottom:1px;text-align:left;transition:all .15s}
+.nb:hover{background:#f0fafa;color:#0f766e}
+.nb.act{background:linear-gradient(135deg,#e0f2fe,#ccfbf1);color:#0f766e;font-weight:700}
+.nb .ico{font-size:14px}
+#sfooter{padding:8px 12px;border-top:1px solid #f1f5f9;font-size:9px;color:#94a3b8;line-height:1.6}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#page-header{background:#fff;padding:9px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+#page-header h2{font-size:14px;font-weight:700;color:#0f3460}
+.month-btns{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.month-btns button{padding:3px 7px;border-radius:5px;font-size:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;transition:all .12s}
+.month-btns button.act{background:#0f766e;color:#fff;border-color:#0f766e}
+#content{flex:1;overflow-y:auto;padding:14px 16px}
+.sec-h{font-size:12px;font-weight:700;color:#0f3460;margin:14px 0 8px;display:flex;align-items:center;gap:6px}
+.sec-h::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.card{background:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 1px 4px rgba(15,52,96,.07);margin-bottom:10px}
+.kpi-grid{display:grid;gap:10px;margin-bottom:10px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:#fff;border-radius:11px;padding:12px 14px;border-left:3px solid #4ecdc4;box-shadow:0 1px 4px rgba(15,52,96,.07)}
+.kpi-label{font-size:9px;color:#64748b;margin-bottom:2px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.kpi-val{font-size:18px;font-weight:800;color:#0f3460}
+.kpi-sub{font-size:9px;color:#94a3b8;margin-top:1px}
+.kpi-trend{font-size:9px;margin-top:3px;font-weight:600}
+.up{color:#10b981}.dn{color:#ef4444}.fl{color:#9ca3af}
+.analysis-top{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.chart-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(15,52,96,.07)}
+.chart-card h4{font-size:11px;font-weight:700;color:#0f3460;margin-bottom:8px}
+/* STORE GRID */
+.store-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.store-card{background:#fff;border-radius:12px;padding:13px 14px;box-shadow:0 1px 4px rgba(15,52,96,.07);border-top:3px solid #ccc;cursor:pointer;transition:all .18s;position:relative}
+.store-card:hover{box-shadow:0 4px 16px rgba(15,52,96,.14);transform:translateY(-2px)}
+.store-card-header{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.store-card-name{font-size:12px;font-weight:700;color:#0f3460}
+.store-card-rank{margin-left:auto;font-size:10px;font-weight:700}
+.sc-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px}
+.sc-kpi{background:#f8fafc;border-radius:7px;padding:6px 8px}
+.sc-kpi-label{font-size:9px;color:#64748b;margin-bottom:1px}
+.sc-kpi-val{font-size:13px;font-weight:700;color:#0f3460}
+.occ-bar-wrap{background:#f1f5f9;border-radius:4px;height:6px;margin-top:6px}
+.occ-bar{height:6px;border-radius:4px;transition:width .4s}
+.occ-label{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px}
+.store-go-btn{position:absolute;bottom:12px;right:12px;font-size:9px;color:#0f766e;background:#f0fafa;border:1px solid #ccfbf1;border-radius:5px;padding:2px 8px;font-weight:700}
+/* PLATFORM BARS */
+.pf-bar-row{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:4px 0}
+.pf-legend{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.pf-leg-item{display:flex;align-items:center;gap:3px;font-size:9px;color:#475569}
+.pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+/* BEP CARD */
+.bep-card{background:linear-gradient(135deg,#0f3460,#1e5f88);border-radius:12px;padding:13px 15px;color:#e2f4f0;margin-bottom:10px}
+.bep-card h4{font-size:10px;color:#7dd3d0;margin-bottom:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.bep-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.bep-lbl{font-size:10px;color:#a0cfe8}
+.bep-val{font-size:14px;font-weight:800;color:#e2f4f0}
+.bep-progress{background:rgba(255,255,255,.12);border-radius:4px;height:7px;margin-top:10px}
+.bep-fill{height:7px;border-radius:4px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:8px 7px;text-align:right;font-weight:700;border-bottom:1.5px solid #e2e8f0;white-space:nowrap;background:#f8fafc;color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+th:first-child{text-align:left;padding-left:12px}
+td{padding:7px 7px;text-align:right;border-bottom:1px solid #f1f5f9;white-space:nowrap;color:#334155}
+td:first-child{text-align:left;padding-left:12px;font-weight:600;color:#0f3460}
+tr:hover td{background:#f8fafc}
+tr.red-row td{background:rgba(239,68,68,.03)}
+.alert-bar{background:linear-gradient(135deg,#fef3c7,#fef9e7);border:1px solid #f59e0b;border-radius:10px;padding:9px 14px;margin-bottom:12px;font-size:11px;color:#92400e}
+.dd-wrap{position:relative;display:inline-block;margin-bottom:12px}
+.dd-btn{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:700;color:#0f3460;box-shadow:0 1px 3px rgba(15,52,96,.06)}
+.dd-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dd-menu{position:absolute;top:110%;left:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;z-index:999;min-width:215px;box-shadow:0 8px 24px rgba(15,52,96,.15);display:none}
+.dd-menu.open{display:block}
+.dd-item{display:flex;align-items:center;gap:7px;padding:8px 14px;cursor:pointer;font-size:12px;color:#334155}
+.dd-item:hover,.dd-item.sel{background:#f0fafa;color:#0f766e}
+.pulse-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.pulse-tab{padding:4px 10px;border-radius:7px;border:1px solid #e2e8f0;font-size:10px;background:#fff;color:#64748b}
+.pulse-tab.act{background:#ccfbf1;border-color:#14b8a6;color:#0f766e;font-weight:700}
+.pulse-card{background:#fff;border-radius:11px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(15,52,96,.07)}
+.pulse-note{font-size:11px;color:#64748b;line-height:1.8;margin-top:7px;white-space:pre-wrap}
+.pulse-ta{width:100%;min-height:65px;border-radius:8px;border:1.5px solid #14b8a6;padding:8px;font-size:11px;resize:vertical;background:#f0fafa;margin-top:9px;display:block}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.badge{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600}
+.bg-teal{background:#ccfbf1;color:#0f766e}.bg-green{background:#d1fae5;color:#065f46}
+.bg-red{background:#fee2e2;color:#991b1b}.bg-yellow{background:#fef3c7;color:#92400e}.bg-gray{background:#f1f5f9;color:#475569}
+.mtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.mtab{padding:5px 11px;border-radius:7px;border:1px solid #e2e8f0;font-size:11px;background:#fff;color:#475569}
+.mtab.act{background:#0f766e;color:#fff;border-color:#0f766e;font-weight:700}
+.csv-drop{border:2px dashed #cbd5e1;border-radius:11px;padding:22px;text-align:center;cursor:pointer;background:#f8fafc;transition:all .2s}
+.csv-drop:hover,.csv-drop.drag{border-color:#14b8a6;background:#f0fafa}
+.csv-drop p{font-size:12px;color:#64748b;margin-top:6px}
+.csv-ok{margin-top:8px;font-size:11px;padding:6px 13px;border-radius:7px;background:#d1fae5;color:#065f46;font-weight:600}
+.proposal{border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7}
+.proposal h4{font-size:11px;font-weight:700;margin-bottom:3px}
+.p-green{background:#d1fae5;border-left:3px solid #10b981}
+.p-yellow{background:#fef3c7;border-left:3px solid #f59e0b}
+.p-orange{background:#ffedd5;border-left:3px solid #f97316}
+.p-red{background:#fee2e2;border-left:3px solid #ef4444}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;justify-content:center}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b}
+.leg-box{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.leg-line{width:14px;height:2.5px;border-radius:2px;flex-shrink:0}
+
+.s-banner{border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;border-left:4px solid #ccc}
+.s-green{background:#d1fae5;border-color:#10b981}.s-yellow{background:#fef3c7;border-color:#f59e0b}.s-red{background:#fee2e2;border-color:#ef4444}
+.s-banner-icon{font-size:28px}.s-banner-title{font-size:13px;font-weight:700;color:#0f3460;margin-bottom:2px}.s-banner-sub{font-size:11px;color:#475569}
+.action-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 4px rgba(15,52,96,.07);margin-bottom:10px;border-left:4px solid #ccc}
+.action-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.action-name{font-size:13px;font-weight:700;color:#0f3460;flex:1}
+.s-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px}
+.rec-list{list-style:none;padding:0;margin-bottom:0}
+.rec-list li{display:flex;gap:7px;font-size:11px;color:#334155;line-height:1.6;margin-bottom:5px;padding:5px 8px;background:#f8fafc;border-radius:6px;align-items:center}
+.p3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.p-card{background:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 1px 4px rgba(15,52,96,.07)}
+.p-card h4{font-size:11px;font-weight:700;color:#0f3460;margin-bottom:8px}
+.p-card p{font-size:11px;color:#475569;line-height:1.7;margin-bottom:4px}
+.timeline{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 1px 4px rgba(15,52,96,.07);margin-bottom:14px}
+.tl-row{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start}
+.tl-month{min-width:68px;background:#0f3460;color:#e2f4f0;border-radius:8px;padding:5px 8px;font-size:10px;font-weight:700;text-align:center;flex-shrink:0}
+.tl-item{font-size:11px;color:#334155;padding:4px 8px;background:#f8fafc;border-radius:6px;margin-bottom:4px;border-left:2px solid #14b8a6}
+.ss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.ss-card{background:#fff;border-radius:11px;padding:11px 13px;box-shadow:0 1px 4px rgba(15,52,96,.07);border-top:3px solid #ccc}
+.sn-ta{width:100%;min-height:65px;border-radius:8px;border:1.5px solid #14b8a6;padding:8px;font-size:11px;resize:vertical;background:#f0fafa;margin-top:8px;display:block}
+
+
+.yoy-modal-overlay{position:fixed;inset:0;background:rgba(15,52,96,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.yoy-modal{background:#fff;border-radius:16px;width:100%;max-width:860px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,52,96,.3)}
+.yoy-modal-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0;z-index:1}
+.yoy-modal-body{padding:16px 20px 20px}
+
+.month-picker{position:absolute;top:44px;right:0;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(15,52,96,.18);padding:14px;z-index:200;min-width:220px}
+.month-picker-years{display:flex;gap:6px;margin-bottom:10px}
+.month-picker-years button{flex:1;padding:5px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer}
+.month-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.month-picker-grid button{padding:7px 4px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+svg text{font-family:-apple-system,sans-serif}
+@media(max-width:700px){
+  #sidebar{width:44px}.nb{padding:9px;justify-content:center}.nb .nb-label{display:none}
+  #sidebar-logo p,#sidebar-logo h1,#sfooter{display:none}#sidebar-logo{padding:10px 6px}
+  .g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}
+  .analysis-top,.store-grid{grid-template-columns:1fr}#topbar{padding:0 10px;gap:7px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="topbar">
+  <div class="tb-logo">STANDHAUS<span>RENTAL SPACE MGMT</span></div>
+  <div class="tb-div"></div>
+  <div class="tb-pill"><div class="tb-pill-label">固定費合計</div><div class="tb-pill-val" id="tb-fixed-val">—</div><div class="tb-pill-sub">家賃+電気+WiFi</div></div>
+  <div class="tb-pill"><div class="tb-pill-label">損益分岐売上</div><div class="tb-pill-val" id="tb-bep-val">—</div><div class="tb-pill-sub" id="tb-bep-sub">—</div></div>
+  <div class="tb-pill"><div class="tb-pill-label">表示月</div><div class="tb-pill-val" id="tb-month">—</div></div>
+  <div class="tb-alert" id="tb-alert" style="display:none"></div>
+</div>
+<div id="body-wrap">
+<aside id="sidebar">
+  <div id="sidebar-logo"><h1>STANDHAUS</h1><p>経営管理ダッシュボード</p></div>
+  <nav id="nav"></nav>
+  <div id="sfooter">※ モックデータ<br>CSV読込→実データ</div>
+</aside>
+<div id="main">
+  <div id="page-header">
+    <h2 id="page-title">ダッシュボード</h2>
+    <div style="margin-left:auto"><div id="month-sel" style="display:flex;align-items:center;gap:6px;position:relative"></div></div>
+  </div>
+  <div id="content"></div>
+</div>
+</div>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════════════
+const STORES=["ECHOES新大阪","ECHOES京都中央","ECHOES扇町","OASIS京都東","OASIS京都","OASIS京都❷","OASIS天王寺","SHEERS天王寺","SHEERS京都七条"];
+const MONTHS=(()=>{
+  const now=new Date();
+  const list=[];
+  // 過去24ヶ月から2027年12月まで生成
+  const start=new Date(now.getFullYear(), now.getMonth()-24, 1);
+  const end=new Date(2027, 11, 1); // 2027年12月
+  for(let d=new Date(start);d<=end;d.setMonth(d.getMonth()+1)){
+    list.push(d.getFullYear()+'/'+ String(d.getMonth()+1).padStart(2,'0'));
+  }
+  return list;
+})()
+const COLORS={"ECHOES新大阪":"#3B82F6","ECHOES京都中央":"#8B5CF6","ECHOES扇町":"#10B981","OASIS京都東":"#F59E0B","OASIS京都":"#EF4444","OASIS京都❷":"#EC4899","OASIS天王寺":"#14B8A6","SHEERS天王寺":"#F97316","SHEERS京都七条":"#6366F1"};
+const CFG={
+  "ECHOES新大阪":   {b:180000,g:0.03,rent:99880, elec:5000,wifi:3608,clean:8000},
+  "ECHOES京都中央": {b:300000,g:0.05,rent:162000,elec:5000,wifi:3608,clean:8000},
+  "ECHOES扇町":   {b:120000,g:0.10,rent:99880, elec:5000,wifi:3608,clean:8000},
+  "OASIS京都東":  {b:80000, g:0.02,rent:35000, elec:5000,wifi:3608,clean:8000},
+  "OASIS京都":    {b:150000,g:0.03,rent:49500, elec:5000,wifi:3608,clean:8000},
+  "OASIS京都❷":  {b:150000,g:0.03,rent:49500, elec:5000,wifi:3608,clean:8000},
+  "OASIS天王寺":  {b:100000,g:0.04,rent:44000, elec:5000,wifi:3608,clean:8000},
+  "SHEERS天王寺": {b:100000,g:0.04,rent:44000, elec:5000,wifi:3608,clean:8000},
+  "SHEERS京都七条":{b:80000, g:0.03,rent:49500, elec:5000,wifi:3608,clean:8000}
+}
+const SEA=[0.85,0.88,0.95,1.00,1.05,1.10,1.15,1.20,1.10,1.05,1.00,1.30];
+const WD_W=[0.10,0.12,0.12,0.12,0.14,0.20,0.20];
+const DUR_W=[0.15,0.30,0.25,0.20,0.10];
+const PF_CFG={};
+const WEEKDAYS=["月","火","水","木","金","土","日"];
+const HOURS_LBL=["8時","9時","10時","11時","12時","13時","14時","15時","16時","17時","18時","19時"];
+const HOUR_W=[0.04,0.06,0.08,0.10,0.12,0.12,0.10,0.10,0.10,0.08,0.06,0.04]; // 時間帯別売上比率(8h〜20h)
+const HOUR_LBL=["8時","9時","10時","11時","12時","13時","14時","15時","16時","17時","18時","19時"];
+const DUR_LBL=["〜1h","1〜2h","2〜4h","4〜8h","8h〜"];
+const PLATFORMS=["スペースマーケット","スペイシー","インスタベース","カシカシ","その他"];
+const PF_COLORS=["#3B82F6","#8B5CF6","#10B981","#F59E0B","#94A3B8"];
+const SEASONS=["春(3〜5月)","夏(6〜8月)","秋(9〜11月)","冬(12〜2月)"];
+const PURPOSE_LBL=["パーティ","会議・研修","撮影","ワーク","その他"];
+const PURPOSE_W=[0.30,0.25,0.20,0.15,0.10];
+const PURPOSE_COL=["#3B82F6","#8B5CF6","#10B981","#F59E0B","#94A3B8"];
+function buildData(){
+  const d={};
+  STORES.forEach(s=>{
+    const c=CFG[s],sd0=s.charCodeAt(0),pfW=PF_CFG[s]||[0.35,0.25,0.20,0.15,0.05];
+    d[s]=MONTHS.map((m,i)=>{
+      const sd=sd0*7+i*13,rn=(lo,hi)=>lo+(sd%97)/97*(hi-lo);
+      const sales=Math.round(c.b*(SEA[i%12]||1)*(1+c.g*(i%12)/12));
+      const fee=Math.round(sales*0.31),rent=c.rent,elec=c.elec,wifi=c.wifi;
+      const clean=Math.round(rn(5000,20000));
+      const fixed=rent+elec+wifi,variable=fee+clean,gp=sales-fixed-variable;
+      const TOTAL_H=360,hourRent=rent/TOTAL_H;
+      const operHours=hourRent>0?Math.round(sales/hourRent):0;
+      const occupancy=Math.min(100,Math.round(operHours/TOTAL_H*100));
+      const res=Math.max(1,Math.round(sales/17000));
+      const varRate=sales>0?variable/sales:0.35,contribRate=1-varRate;
+      const bepSales=contribRate>0?Math.round(fixed/contribRate):0;
+      const wdTot=WD_W.reduce((a,v)=>a+v,0);
+      const wdSales=WD_W.map(w=>Math.round(sales*w/wdTot));
+      const wdCount=WD_W.map(w=>Math.round(res*w/wdTot));
+      const durCount=DUR_W.map(w=>Math.round(res*w));
+      const pfSales=pfW.map(w=>Math.round(sales*w));
+      const pfCount=pfW.map(w=>Math.round(res*w));
+      const occ=Math.min(100,Math.round(operHours/TOTAL_H*100));
+      return{month:m,sales,fee,rent,elec,wifi,clean,fixed,variable,gp,
+        margin:sales>0?Math.round(gp/sales*100):0,
+        res,oh:operHours,operHours,TH:TOTAL_H,TOTAL_H,
+        occ,occupancy:occ,vac:100-occ,vacancy:100-occ,
+        hp:operHours>0?Math.round(gp/operHours):0,
+        hprofit:operHours>0?Math.round(gp/operHours):0,
+        hr:Math.round(hourRent),hourRent:Math.round(hourRent),
+        bep:bepSales,bepSales,beph:hourRent>0?Math.round(bepSales/hourRent):0,
+        bepHours:hourRent>0?Math.round(bepSales/hourRent):0,
+        vr:varRate,varRate,cr:contribRate,contribRate,
+        wdS:wdSales,wdSales,wdC:wdCount,wdCount,
+        durC:durCount,durCount,
+        pfS:pfSales,pfSales,pfC:pfCount,pfCount,
+        pfw:pfW,pfW};
+    });
+  });
+  return d;
+}
+const DATA=buildData();
+let csvData=null;
+
+// ── UTILS ─────────────────────────────────────────────────────
+const fmt=n=>n>=0?`¥${Math.round(n).toLocaleString()}`:`-¥${Math.abs(Math.round(n)).toLocaleString()}`;
+const fmtK=n=>n>=0?'¥'+Math.round(n).toLocaleString():'-¥'+Math.abs(Math.round(n)).toLocaleString();
+const trnd=(c,p)=>p!==0?Math.round((c-p)/Math.abs(p)*100):0;
+let notes={};try{const r=localStorage.getItem("sh_notes_v6");if(r)notes=JSON.parse(r);}catch(e){}
+function saveNote(k,v){notes[k]=v;try{localStorage.setItem("sh_notes_v6",JSON.stringify(notes));}catch(e){}}
+
+// ── STORE CONFIG ───────────────────────────────────────────────
+var storeConfig={};
+try{var scc=localStorage.getItem("sh_cfg1");if(scc)storeConfig=JSON.parse(scc);}catch(e){}
+STORES.forEach(s=>{if(!storeConfig[s]){const c=CFG[s]||{rent:50000,elec:8000,wifi:4500};storeConfig[s]={rent:c.rent,elec:c.elec,wifi:c.wifi,clean:8000};}});
+const saveStoreConfig=()=>{try{localStorage.setItem("sh_cfg1",JSON.stringify(storeConfig));}catch(e){}};
+var usingRealData=false;
+var dismissedRecs={};try{const dr=localStorage.getItem("sh_dr1");if(dr)dismissedRecs=JSON.parse(dr);}catch(e){}
+const saveDismissed=(s,rec)=>{if(!dismissedRecs[s])dismissedRecs[s]=[];if(!dismissedRecs[s].includes(rec))dismissedRecs[s].push(rec);try{localStorage.setItem("sh_dr1",JSON.stringify(dismissedRecs));}catch(e){}};
+const undismissAll=s=>{delete dismissedRecs[s];try{localStorage.setItem("sh_dr1",JSON.stringify(dismissedRecs));}catch(e){}};
+var customRecs={};try{const cr=localStorage.getItem("sh_cr1");if(cr)customRecs=JSON.parse(cr);}catch(e){}
+const addCustomRec=(s,text)=>{if(!customRecs[s])customRecs[s]=[];customRecs[s].push(text);try{localStorage.setItem("sh_cr1",JSON.stringify(customRecs));}catch(e){}};
+const delCustomRec=(s,idx)=>{if(customRecs[s])customRecs[s].splice(idx,1);try{localStorage.setItem("sh_cr1",JSON.stringify(customRecs));}catch(e){}};
+var snotes={};try{const sr=localStorage.getItem("sh_s1");if(sr)snotes=JSON.parse(sr);}catch(e){}
+const saveSnote=(k,v)=>{snotes[k]=v;try{localStorage.setItem("sh_s1",JSON.stringify(snotes));}catch(e){}};
+let snEdit=null,snDraft="";
+let selYoYStore=null;
+let weeklyMemos={};
+let gmailData=null;
+let showMonthPicker=false;
+let gmailPeriod="week"; // today/week/month/all // GmailログDBから取得した予約データ
+let weeklyView='store';
+let yoyMetric="sales";
+
+const parseYM=ds=>{const m=String(ds).match(/(\d{4})[\/\-](\d{1,2})/);return m?`${m[1]}/${m[2].padStart(2,"0")}`:null;};
+
+function processCsvToData(rows){
+  const d={};
+  STORES.forEach(s=>{
+    d[s]=MONTHS.map(m=>({month:m,sales:0,fee:0,res:0,
+      rent:storeConfig[s].rent,elec:storeConfig[s].elec,wifi:storeConfig[s].wifi,clean:0,
+      fixed:0,variable:0,gp:0,margin:0,oh:0,TH:360,occ:0,occupancy:0,vac:100,vacancy:100,
+      hp:0,hprofit:0,hr:0,hourRent:0,
+      bep:0,bepSales:0,beph:0,bepHours:0,vr:0.35,cr:0.65,
+      wdS:[0,0,0,0,0,0,0],wdSales:[0,0,0,0,0,0,0],
+      wdC:[0,0,0,0,0,0,0],wdCount:[0,0,0,0,0,0,0],
+      durC:[0,0,0,0,0,0,0],durCount:[0,0,0,0,0,0,0],
+      pfS:[0,0,0,0,0],pfSales:[0,0,0,0,0],
+      pfC:[0,0,0,0,0],pfCount:[0,0,0,0,0],
+      pfw:[0.2,0.2,0.2,0.2,0.2],pfW:[0.2,0.2,0.2,0.2,0.2]}));
+  });
+  const pfMap={"スペースマーケット":0,"スペイシー":1,"インスタベース":2,"カシカシ":3};
+  rows.forEach(row=>{
+    const s=row.store;if(!d[s])return;
+    const ym=parseYM(row.useDate);const mi=MONTHS.indexOf(ym);if(mi<0)return;
+    const r=d[s][mi];
+    r.sales+=row.sales||0;r.fee+=row.fee||0;r.res++;
+    const wi=WEEKDAYS.indexOf(row.weekday);if(wi>=0)r.wdS[wi]+=row.sales||0;
+    const pfi=pfMap[row.platform]??4;r.pfS[pfi]+=row.sales||0;r.pfC[pfi]++;
+  });
+  STORES.forEach(s=>{
+    const cfg=storeConfig[s];
+    d[s].forEach(r=>{
+      r.clean=cfg.clean;r.fixed=r.rent+r.elec+r.wifi;r.variable=r.fee+r.clean;
+      r.gp=r.sales-r.fixed-r.variable;r.margin=r.sales>0?Math.round(r.gp/r.sales*100):0;
+      const hr=r.rent/360;r.hr=Math.round(hr);r.oh=hr>0?Math.round(r.sales/hr):0;
+      r.occ=Math.min(100,Math.round(r.oh/360*100));r.vac=100-r.occ;
+      r.hp=r.oh>0?Math.round(r.gp/r.oh):0;
+      r.vr=r.sales>0?r.variable/r.sales:0.35;r.cr=1-r.vr;
+      r.bep=r.cr>0?Math.round(r.fixed/r.cr):0;r.beph=hr>0?Math.round(r.bep/hr):0;
+      const pfT=r.pfS.reduce((a,v)=>a+v,0)||1;
+      r.pfw=r.pfS.map(v=>v/pfT);r.pfW=r.pfw;
+      r.pfSales=r.pfS;r.pfCount=r.pfC;
+      const wdT=r.wdS.reduce((a,v)=>a+v,0)||1;
+      r.wdC=r.wdS.map(v=>Math.round(r.res*v/wdT));
+      r.wdSales=r.wdS;r.wdCount=r.wdC;
+      r.durC=[0.07,0.24,0.22,0.19,0.11,0.12,0.05].map(w=>Math.round(r.res*w));
+      r.durCount=r.durC;
+      r.occupancy=r.occ;r.vacancy=r.vac;r.hprofit=r.hp;
+      r.hourRent=r.hr;r.bepSales=r.bep;r.bepHours=r.beph;
+    });
+  });
+  // Apply per-month costs from costCSVData if available
+  if(costCSVData){
+    STORES.forEach(s=>{
+      if(!costCSVData[s])return;
+      MONTHS.forEach((m,mi)=>{
+        const costs=costCSVData[s][m];
+        if(!costs)return;
+        const r=d[s][mi];
+        if(costs.rent>0)r.rent=costs.rent;
+        if(costs.elec>0)r.elec=costs.elec;
+        if(costs.wifi>0)r.wifi=costs.wifi;
+        if(costs.clean>0)r.clean=costs.clean;
+        r.fixed=r.rent+r.elec+r.wifi;
+        r.variable=r.fee+r.clean;
+        r.gp=r.sales-r.fixed-r.variable;
+        r.margin=r.sales>0?Math.round(r.gp/r.sales*100):0;
+        const hr=r.rent/360;r.hr=Math.round(hr);
+        r.oh=hr>0?Math.round(r.sales/hr):0;
+        r.occ=Math.min(100,Math.round(r.oh/360*100));r.vac=100-r.occ;
+        r.hp=r.oh>0?Math.round(r.gp/r.oh):0;
+        r.vr=r.sales>0?r.variable/r.sales:0.35;r.cr=1-r.vr;
+        r.bep=r.cr>0?Math.round(r.fixed/r.cr):0;r.beph=hr>0?Math.round(r.bep/hr):0;
+      });
+    });
+  }
+  return d;
+}
+
+
+// ── データ永続化（ページリロードしても消えない） ───────────────
+function saveWeeklyMemos(){
+  try{localStorage.setItem('sh_weekly_memos',JSON.stringify(weeklyMemos));}catch(e){}
+}
+function loadWeeklyMemos(){
+  try{const d=localStorage.getItem('sh_weekly_memos');if(d)weeklyMemos=JSON.parse(d);}catch(e){}
+}
+
+function saveAllData(){
+  try{
+    // DATAを保存（月次集計データ、約50KB）
+    localStorage.setItem('sh_data_ver','14');
+    localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
+    localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
+    if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
+    if(occCSVData)  localStorage.setItem('sh_occcsv_v1',  JSON.stringify(occCSVData));
+  }catch(e){
+    console.warn('データ保存失敗:', e.message);
+  }
+}
+
+function loadSavedData(){
+  try{
+    // バージョンチェック（フィールド名変更後は古いデータを破棄）
+    const ver = localStorage.getItem('sh_data_ver');
+    if(ver !== '7') {
+      // バージョン変更時は全キャッシュをクリア
+      ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
+       'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
+      localStorage.setItem('sh_data_ver','14');
+      return false;
+    }
+    const saved = localStorage.getItem('sh_data_v1');
+    if(!saved) return false;
+    const savedData = JSON.parse(saved);
+    // 保存データをDATAに復元
+    STORES.forEach(s=>{ if(savedData[s]) DATA[s]=savedData[s]; });
+    usingRealData = JSON.parse(localStorage.getItem('sh_realdata_v1')||'false');
+    const savedCost = localStorage.getItem('sh_costcsv_v1');
+    if(savedCost) costCSVData = JSON.parse(savedCost);
+    const savedOcc = localStorage.getItem('sh_occcsv_v1');
+    if(savedOcc) occCSVData = JSON.parse(savedOcc);
+    return true;
+  }catch(e){
+    console.warn('データ復元失敗:', e.message);
+    return false;
+  }
+}
+
+function clearAllData(){
+  localStorage.removeItem('sh_data_v1');
+  localStorage.removeItem('sh_realdata_v1');
+  localStorage.removeItem('sh_costcsv_v1');
+  localStorage.removeItem('sh_occcsv_v1');
+  csvData=null; costCSVData=null; occCSVData=null; usingRealData=false;
+  const fresh=buildData();
+  STORES.forEach(s=>{DATA[s]=fresh[s];});
+}
+
+// ── STATE ─────────────────────────────────────────────────────
+let page="dashboard",selMonth=(()=>{const now=new Date();const ym=now.getFullYear()+'/'+String(now.getMonth()+1).padStart(2,'0');return MONTHS.includes(ym)?ym:MONTHS[MONTHS.length-2];})(),selStore=STORES[0];
+let compareMetric="sales",ddOpen=false,pulseStore="全店舗",pulseEdit=null,pulseDraft="";
+
+// ══════════════════════════════════════════════════════════════
+// SVG HELPERS
+// ══════════════════════════════════════════════════════════════
+function svgBar(W,H,pad,vals,labels,color,showVal=false){
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b,n=vals.length;
+  const mx=Math.max(...vals,1);
+  const toY=v=>pad.t+ph-v/mx*ph;
+  let g='',bars='',xlbl='';
+  [0,.5,1].forEach(f=>{const v=mx*f,y=toY(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    if(f===0||f===1){const l=Math.abs(v)>=10000?`${(v/10000).toFixed(0)}万`:Math.round(v).toString();
+      g+=`<text x="${pad.l-3}" y="${y+3.5}" text-anchor="end" font-size="8" fill="#94a3b8">${l}</text>`;}
+  });
+  vals.forEach((v,i)=>{
+    const bw=pw/n*.72,bx=pad.l+i/n*pw+pw/n*.14,y=toY(v),h=Math.abs(toY(0)-y)||1;
+    bars+=`<rect x="${bx}" y="${y}" width="${bw}" height="${h}" fill="${color}" rx="2" opacity=".88"/>`;
+    if(showVal&&v>0){bars+=`<text x="${bx+bw/2}" y="${y-3}" text-anchor="middle" font-size="7.5" fill="${color}" font-weight="700">${Math.abs(v)>=10000?(v/10000).toFixed(1)+'万':v.toLocaleString()}</text>`;}
+    if(labels)xlbl+=`<text x="${bx+bw/2}" y="${H-1}" text-anchor="middle" font-size="8" fill="#94a3b8">${labels[i]}</text>`;
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${g}${bars}${xlbl}</svg>`;
+}
+
+function svgMiniBar(W,H,vals,labels,color){
+  const pw=W-28,ph=H-14,n=vals.length,mx=Math.max(...vals,1);
+  const toY=v=>H-14-v/mx*ph;
+  let bars='',xlbl='';
+  vals.forEach((v,i)=>{
+    const bw=pw/n*.7,bx=28+i/n*pw+pw/n*.15,y=toY(v),h=Math.abs(H-14-y)||1;
+    bars+=`<rect x="${bx}" y="${y}" width="${bw}" height="${h}" fill="${color}" rx="1" opacity=".82"/>`;
+    if(labels)xlbl+=`<text x="${bx+bw/2}" y="${H-1}" text-anchor="middle" font-size="7" fill="#94a3b8">${labels[i]}</text>`;
+  });
+  const top=Math.abs(mx)>=10000?`${(mx/10000).toFixed(0)}万`:mx.toString();
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}"><text x="26" y="10" text-anchor="end" font-size="7" fill="#94a3b8">${top}</text>${bars}${xlbl}</svg>`;
+}
+
+function svgLine(W,H,pad,series,labels){
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b,n=labels.length;
+  const allV=series.flatMap(s=>s.data);
+  let mn=Math.min(0,...allV),mx=Math.max(...allV,1);
+  const rng=mx-mn||1;mx+=rng*.08;mn=mn<0?mn-rng*.05:0;
+  const ry=mx-mn,toY=v=>pad.t+ph-(v-mn)/ry*ph,toX=i=>pad.l+i/(n-1)*pw;
+  let g='',lines='',xlbl='';
+  [0,.5,1].forEach(f=>{const v=mn+ry*f,y=toY(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    const l=Math.abs(v)>=10000?`${(v/10000).toFixed(0)}万`:Math.round(v).toString();
+    g+=`<text x="${pad.l-3}" y="${y+3.5}" text-anchor="end" font-size="8" fill="#94a3b8">${l}</text>`;
+  });
+  if(mn<0&&mx>0){const zy=toY(0);g+=`<line x1="${pad.l}" y1="${zy}" x2="${pad.l+pw}" y2="${zy}" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3"/>`;}
+  labels.forEach((l,i)=>xlbl+=`<text x="${toX(i)}" y="${H-1}" text-anchor="middle" font-size="8" fill="#94a3b8">${l}</text>`);
+  series.forEach(s=>{
+    const pts=s.data.map((v,i)=>`${toX(i)},${toY(v)}`).join(' ');
+    lines+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round"/>`;
+    s.data.forEach((v,i)=>lines+=`<circle cx="${toX(i)}" cy="${toY(v)}" r="2.5" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`);
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${g}${xlbl}${lines}</svg>`;
+}
+
+function svgCombined(W,H,pad,barSeries,lineSeries,labels){
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b,n=labels.length;
+  const stackMax=labels.map((_,i)=>barSeries.reduce((a,s)=>a+Math.max(0,s.data[i]),0));
+  const allV=[...stackMax,...lineSeries.flatMap(s=>s.data)];
+  let mn=Math.min(0,...lineSeries.flatMap(s=>s.data)),mx=Math.max(0,...allV,1);
+  const rng=mx-mn||1;mx+=rng*.08;mn=mn<0?mn-rng*.04:0;
+  const ry=mx-mn,toY=v=>pad.t+ph-(v-mn)/ry*ph,toX=i=>pad.l+i/(n-1)*pw;
+  let g='',shapes='',xlbl='';
+  for(let i=0;i<=4;i++){const v=mn+ry*i/4,y=toY(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    const l=Math.abs(v)>=10000?`${(v/10000).toFixed(0)}万`:Math.round(v).toString();
+    g+=`<text x="${pad.l-3}" y="${y+3.5}" text-anchor="end" font-size="8" fill="#94a3b8">${l}</text>`;
+  }
+  if(mn<0&&mx>0){const zy=toY(0);g+=`<line x1="${pad.l}" y1="${zy}" x2="${pad.l+pw}" y2="${zy}" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3"/>`;}
+  labels.forEach((l,i)=>xlbl+=`<text x="${toX(i)}" y="${H-1}" text-anchor="middle" font-size="8" fill="#94a3b8">${l}</text>`);
+  const bw=pw/n*.50;
+  labels.forEach((_,i)=>{let yBase=toY(0);
+    [...barSeries].reverse().forEach(s=>{const v=Math.max(0,s.data[i]),bx=toX(i)-bw/2;
+      const y1=toY(v),h=Math.abs(yBase-y1)||1;
+      shapes+=`<rect x="${bx}" y="${yBase-h}" width="${bw}" height="${h}" fill="${s.color}" rx="2" opacity=".80"/>`;
+      yBase-=h;
+    });
+  });
+  lineSeries.forEach(s=>{
+    const pts=s.data.map((v,i)=>`${toX(i)},${toY(v)}`).join(' ');
+    shapes+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    s.data.forEach((v,i)=>shapes+=`<circle cx="${toX(i)}" cy="${toY(v)}" r="3" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`);
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${g}${xlbl}${shapes}</svg>`;
+}
+
+function svgPie(W,H,data){
+  const total=data.reduce((a,d)=>a+d.value,0)||1;
+  const cx=W/2,cy=H/2,r=Math.min(W,H)/2-8;
+  let start=-Math.PI/2,out='';
+  data.forEach(d=>{
+    const angle=d.value/total*2*Math.PI,end=start+angle;
+    const x1=cx+r*Math.cos(start),y1=cy+r*Math.sin(start);
+    const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
+    out+=`<path d="M${cx},${cy}L${x1},${y1}A${r},${r},0,${angle>Math.PI?1:0},1,${x2},${y2}Z" fill="${d.color}" opacity=".88"/>`;
+    const pct=Math.round(d.value/total*100);
+    if(pct>5){const mid=start+angle/2,lx=cx+(r*.62)*Math.cos(mid),ly=cy+(r*.62)*Math.sin(mid);
+      out+=`<text x="${lx}" y="${ly+3}" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">${pct}%</text>`;}
+    start=end;
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${out}</svg>`;
+}
+
+// 媒体別積み上げ横バー (HTML)
+function pfBar(pfW,pfSales,totalSales){
+  const total=pfSales.reduce((a,v)=>a+v,0)||totalSales||1;
+  const segs=PLATFORMS.map((p,i)=>({label:p,val:pfSales[i],color:PF_COLORS[i],pct:Math.round(pfSales[i]/total*100)})).filter(s=>s.pct>0);
+  const bars=segs.map(s=>`<div style="flex:${s.pct};background:${s.color};height:100%;min-width:2px" title="${s.label}: ${s.pct}%"></div>`).join('');
+  const legend2=segs.map(s=>`<div class="pf-leg-item"><span class="pf-dot" style="background:${s.color}"></span><span>${s.label} ${s.pct}%</span></div>`).join('');
+  return `<div class="pf-bar-row" style="display:flex;border-radius:4px;overflow:hidden">${bars}</div><div class="pf-legend">${legend2}</div>`;
+}
+
+function legend(series){
+  return `<div class="legend">${series.map(s=>`<div class="leg-item">${s.type==='line'?`<div class="leg-line" style="background:${s.color}"></div>`:`<div class="leg-box" style="background:${s.color}"></div>`}<span>${s.label}</span></div>`).join('')}</div>`;
+}
+
+function kpiCard(label,value,color,pct,sub=''){
+  const up=pct>0,dn=pct<0;
+  return `<div class="kpi" style="border-left-color:${color}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-val">${value}</div>
+    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
+    ${pct!==undefined?`<div class="kpi-trend ${up?'up':dn?'dn':'fl'}">${up?'↑':dn?'↓':'→'} 前月比 ${Math.abs(pct)}%</div>`:''}
+  </div>`;
+}
+
+// ── TOPBAR ────────────────────────────────────────────────────
+function updateTopbar(){
+  const li=MONTHS.indexOf(selMonth),pi=Math.max(0,li-1);
+  const fixed=STORES.reduce((a,s)=>a+DATA[s][li].fixed,0);
+  const tot=STORES.reduce((a,s)=>({s:a.s+DATA[s][li].sales,v:a.v+DATA[s][li].variable}),{s:0,v:0});
+  const cr=1-(tot.s>0?tot.v/tot.s:0.35),bep=cr>0?Math.round(fixed/cr):0;
+  const pct=bep>0?Math.round(tot.s/bep*100):0;
+  document.getElementById('tb-fixed-val').textContent=fmtK(fixed);
+  document.getElementById('tb-bep-val').textContent=fmtK(bep);
+  document.getElementById('tb-bep-sub').textContent=`現在 ${pct}% 達成`;
+  document.getElementById('tb-month').textContent=selMonth;
+  const tbRd=document.getElementById('tb-rd');if(tbRd)tbRd.style.display=usingRealData?'':'none';
+  const alerts=STORES.filter(s=>trnd(DATA[s][li].gp,DATA[s][pi].gp)<-20);
+  const el=document.getElementById('tb-alert');
+  if(alerts.length){el.textContent=`⚠ 要注意: ${alerts.join(', ')}`;el.style.display='';}
+  else el.style.display='none';
+}
+
+// ── STORE DROPDOWN ────────────────────────────────────────────
+function storeDD(onChange){
+  const items=STORES.map(s=>`<div class="dd-item${s===selStore?' sel':''}" data-s="${s}"><span class="dd-dot" style="background:${COLORS[s]}"></span>${s}</div>`).join('');
+  const html=`<div class="dd-wrap"><button class="dd-btn" id="dd-btn"><span class="dd-dot" style="background:${COLORS[selStore]}"></span>${selStore} ▾</button><div class="dd-menu${ddOpen?' open':''}" id="dd-menu">${items}</div></div>`;
+  setTimeout(()=>{
+    const btn=document.getElementById('dd-btn'),menu=document.getElementById('dd-menu');
+    if(!btn)return;
+    btn.onclick=e=>{e.stopPropagation();ddOpen=!ddOpen;menu.classList.toggle('open',ddOpen);};
+    menu.querySelectorAll('.dd-item').forEach(el=>el.onclick=()=>{selStore=el.dataset.s;ddOpen=false;onChange();});
+    document.addEventListener('click',()=>{ddOpen=false;if(menu)menu.classList.remove('open');},{once:true});
+  },0);
+  return html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PAGES
+// ══════════════════════════════════════════════════════════════
+
+function pageDashboard(){
+  const li=MONTHS.indexOf(selMonth),pi=Math.max(0,li-1);
+  const tot=i=>STORES.reduce((a,s)=>({sales:a.sales+DATA[s][i].sales,gp:a.gp+DATA[s][i].gp,fixed:a.fixed+DATA[s][i].fixed,variable:a.variable+DATA[s][i].variable,res:a.res+DATA[s][i].res,occ:a.occ+DATA[s][i].occupancy}),{sales:0,gp:0,fixed:0,variable:0,res:0,occ:0});
+  const cur=tot(li),prv=tot(pi);
+  const avgOcc=Math.round(cur.occ/STORES.length);
+  const alerts=STORES.filter(s=>trnd(DATA[s][li].gp,DATA[s][pi].gp)<-20);
+  // グラフは現在月までの過去12ヶ月（実データがある範囲）のみ表示
+  const gStart=Math.max(0,li-11),gEnd=li+1;
+  const gMonths=MONTHS.slice(gStart,gEnd);
+  const gIdxs=gMonths.map(m=>MONTHS.indexOf(m));
+  const labels=gMonths.map(m=>m.slice(5)+'月');
+  const barS=[{label:'固定費',color:'#94A3B8',data:gIdxs.map(i=>STORES.reduce((a,s)=>a+DATA[s][i].fixed,0))},{label:'変動費',color:'#F97316',data:gIdxs.map(i=>STORES.reduce((a,s)=>a+DATA[s][i].variable,0))}];
+  const lineS=[{label:'売上',color:'#3B82F6',type:'line',data:gIdxs.map(i=>STORES.reduce((a,s)=>a+DATA[s][i].sales,0))},{label:'粗利',color:'#10B981',type:'line',data:gIdxs.map(i=>STORES.reduce((a,s)=>a+DATA[s][i].gp,0))}];
+  const sorted=[...STORES].sort((a,b)=>DATA[b][li].sales-DATA[a][li].sales);
+
+  return `
+    ${alerts.length?`<div class="alert-bar">⚠ <strong>要確認：</strong>${alerts.join('、')} の粗利が前月比20%以上悪化しています</div>`:''}
+    <div class="kpi-grid g4">
+      ${kpiCard('売上',fmtK(cur.sales),'#3B82F6',trnd(cur.sales,prv.sales))}
+      ${kpiCard('固定費',fmtK(cur.fixed),'#6B7280',undefined,'家賃+電気+WiFi')}
+      ${kpiCard('変動費',fmtK(cur.variable),'#F97316',undefined,'手数料+清掃')}
+      ${kpiCard('粗利',fmtK(cur.gp),'#10B981',trnd(cur.gp,prv.gp))}
+    </div>
+    <div class="kpi-grid g4">
+      ${kpiCard('粗利率',Math.round(cur.gp/cur.sales*100)+'%','#8B5CF6')}
+      ${kpiCard('予約件数',cur.res+'件','#6366F1')}
+      ${kpiCard('平均稼働率',avgOcc+'%','#14B8A6',undefined,'売上÷時間家賃÷360h')}
+      ${kpiCard('平均空室率',(100-avgOcc)+'%','#F59E0B')}
+    </div>
+    <div class="sec-h">売上・コスト・粗利の推移</div>
+    <div class="card">
+      <div style="font-size:9px;color:#94a3b8;margin-bottom:6px">棒=固定費+変動費の積み上げ / 折れ線=売上・粗利</div>
+      ${svgCombined(700,210,{l:48,r:10,t:10,b:18},barS,lineS,labels)}
+      ${legend([...barS.map(s=>({...s,type:'bar'})),...lineS])}
+    </div>
+    <div class="sec-h">店舗別比較（${selMonth}）</div>
+    <div class="card">${svgBar(700,170,{l:48,r:10,t:10,b:18},sorted.map(s=>DATA[s][li].sales),sorted.map(s=>s.replace('ECHOES','E.').replace('OASIS','O.').replace('SHEERS','SH.')),'#3B82F6',true)}${legend([{label:'売上',color:'#3B82F6',type:'bar'}])}</div>
+  `;
+}
+
+function pageMonthly(){
+  const d=DATA[selStore],color=COLORS[selStore];
+  const li=MONTHS.indexOf(selMonth);
+  // グラフは現在月までの過去12ヶ月のみ
+  const gStart=Math.max(0,li-11),gEnd=li+1;
+  const gd=d.slice(gStart,gEnd);
+  const labels=gd.map(r=>r.month.slice(5)+'月');
+  const barS=[{label:'固定費',color:'#94A3B8',data:gd.map(r=>r.fixed)},{label:'変動費',color:'#F97316',data:gd.map(r=>r.variable)}];
+  const lineS=[{label:'売上',color,type:'line',data:gd.map(r=>r.sales)},{label:'粗利',color:'#10B981',type:'line',data:gd.map(r=>r.gp)}];
+  // テーブルは現在月までのデータのみ表示（未来月の¥0行を除外）
+  const rows=d.slice(0,li+1).reverse().map(r=>`<tr class="${r.gp<0?'red-row':''}">
+    <td>${r.month}</td><td>${fmtK(r.sales)}</td>
+    <td style="color:#6B7280">${fmtK(r.fixed)}</td>
+    <td style="color:#94A3B8;font-size:10px">${fmtK(r.rent)}</td>
+    <td style="color:#94A3B8;font-size:10px">${fmtK(r.elec+r.wifi)}</td>
+    <td style="color:#F97316">${fmtK(r.variable)}</td>
+    <td style="color:#F97316;font-size:10px">${fmtK(r.fee)}</td>
+    <td style="color:#F97316;font-size:10px">${fmtK(r.clean)}</td>
+    <td style="color:${r.gp>=0?'#10b981':'#ef4444'};font-weight:700">${fmtK(r.gp)}</td>
+    <td>${r.margin}%</td><td>${r.occupancy}%</td><td>${r.vacancy}%</td><td>${fmt(r.hprofit)}</td>
+  </tr>`).join('');
+  return `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      ${storeDD(()=>render())}
+      <div style="display:flex;gap:5px;font-size:10px">
+        <span class="badge bg-gray">■ 固定費：家賃・電気・WiFi</span>
+        <span class="badge" style="background:#fff7ed;color:#c2410c">■ 変動費：手数料・清掃</span>
+      </div>
+    </div>
+    <div class="sec-h" style="margin-top:10px">売上・コスト・粗利の推移</div>
+    <div class="card">${svgCombined(700,200,{l:48,r:10,t:10,b:18},barS,lineS,labels)}${legend([...barS.map(s=>({...s,type:'bar'})),...lineS])}</div>
+    <div class="sec-h">月次データ一覧</div>
+    <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table>
+      <thead><tr>
+        <th>月</th><th style="color:#3B82F6">売上</th>
+        <th style="color:#6B7280">固定費計</th><th style="color:#94A3B8">家賃</th><th style="color:#94A3B8">電気+WiFi</th>
+        <th style="color:#F97316">変動費計</th><th style="color:#F97316">手数料</th><th style="color:#F97316">清掃費</th>
+        <th style="color:#10B981">粗利</th><th>粗利率</th><th>稼働率</th><th>空室率</th><th>時間粗利</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>
+  `;
+}
+
+// ─ ANALYSIS ─
+function pageAnalysis(){
+  const li=MONTHS.indexOf(selMonth);
+  const totalSales=STORES.reduce((a,s)=>a+DATA[s][li].sales,0);
+  const totalRes=STORES.reduce((a,s)=>a+DATA[s][li].res,0);
+  const allWdSales=WEEKDAYS.map((_,wi)=>STORES.reduce((a,s)=>a+DATA[s][li].wdSales[wi],0));
+  const allWdCount=WEEKDAYS.map((_,wi)=>STORES.reduce((a,s)=>a+DATA[s][li].wdCount[wi],0));
+  const allDurCount=DUR_LBL.map((_,di)=>STORES.reduce((a,s)=>a+DATA[s][li].durCount[di],0));
+  const hourSales=HOUR_W.map(w=>Math.round(totalSales*w));
+  const seasonSales=SEASONS.map((s,si)=>MONTHS.reduce((tot,_,mi)=>{
+    const mo=parseInt(MONTHS[mi].slice(5));
+    const mapped=[3,4,5].includes(mo)?0:[6,7,8].includes(mo)?1:[9,10,11].includes(mo)?2:3;
+    return mapped===si?tot+STORES.reduce((a,st)=>a+DATA[st][mi].sales,0):tot;
+  },0));
+  const purposeData=PURPOSE_LBL.map((l,i)=>({label:l,value:Math.round(totalSales*PURPOSE_W[i]),color:PURPOSE_COL[i]}));
+
+  // 媒体別集計（全店舗）
+  const allPfSales=PLATFORMS.map((_,pi)=>STORES.reduce((a,s)=>a+DATA[s][li].pfSales[pi],0));
+  const allPfCount=PLATFORMS.map((_,pi)=>STORES.reduce((a,s)=>a+DATA[s][li].pfCount[pi],0));
+  const pfPieData=PLATFORMS.map((l,i)=>({label:l,value:allPfSales[i],color:PF_COLORS[i]}));
+  const pfTotalSales=allPfSales.reduce((a,v)=>a+v,0)||1;
+
+  // 予約時間別
+  const avgHRate=totalRes>0?Math.round(totalSales/totalRes/2.8):3000;
+  const durSales=DUR_W.map((w,i)=>Math.round(totalRes*w*(Math.min(i+1,8))*avgHRate));
+  const durRows=[...DUR_LBL.map((l,i)=>({l,c:allDurCount[i],s:durSales[i],r:Math.round(allDurCount[i]/allDurCount.reduce((a,v)=>a+v,1)*100)}))].sort((a,b)=>b.c-a.c).map((r,i)=>`<tr>
+    <td style="text-align:left;font-weight:700;color:${i===0?'#f59e0b':'#334155'}">${r.l}</td>
+    <td>${r.c}件</td><td>${r.r}%</td><td>${fmtK(r.s)}</td>
+  </tr>`).join('');
+
+  // 全店舗ランキング（今月）
+  const ranking=[...STORES].sort((a,b)=>DATA[b][li].sales-DATA[a][li].sales);
+
+  const storeCards=ranking.map((s,rank)=>{
+    const r=DATA[s][li];
+    const color=COLORS[s];
+    const occColor=r.occupancy>=60?'#10b981':r.occupancy>=40?'#f59e0b':'#ef4444';
+    return `<div class="store-card" data-store="${s}" style="border-top-color:${color}">
+      <div class="store-card-header">
+        <span style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block"></span>
+        <span class="store-card-name">${s}</span>
+        <span class="store-card-rank" style="color:${rank<3?'#f59e0b':'#94a3b8'}">#${rank+1}</span>
+      </div>
+      <div class="sc-kpis">
+        <div class="sc-kpi"><div class="sc-kpi-label">売上</div><div class="sc-kpi-val" style="color:#3b82f6">${fmtK(r.sales)}</div></div>
+        <div class="sc-kpi"><div class="sc-kpi-label">粗利</div><div class="sc-kpi-val" style="color:${r.gp>=0?'#10b981':'#ef4444'}">${fmtK(r.gp)}</div></div>
+        <div class="sc-kpi"><div class="sc-kpi-label">予約件数</div><div class="sc-kpi-val">${r.res}件</div></div>
+        <div class="sc-kpi"><div class="sc-kpi-label">粗利率</div><div class="sc-kpi-val">${r.margin}%</div></div>
+      </div>
+      <div style="font-size:9px;color:#64748b;margin-bottom:3px;font-weight:600">曜日別売上</div>
+      ${svgMiniBar(220,55,r.wdSales,WEEKDAYS,color)}
+      <div style="font-size:9px;color:#64748b;margin:6px 0 2px;font-weight:600">媒体別売上</div>
+      ${pfBar(r.pfW,r.pfSales,r.sales)}
+      <div class="occ-bar-wrap">
+        <div class="occ-bar" style="width:${r.occupancy}%;background:${occColor}"></div>
+      </div>
+      <div class="occ-label"><span>稼働率 <strong style="color:${occColor}">${r.occupancy}%</strong></span><span>空室率 ${r.vacancy}%</span></div>
+      <span class="store-go-btn">詳細を見る →</span>
+    </div>`;
+  }).join('');
+
+  // 媒体別ランキング表
+  const pfRankRows=[...PLATFORMS.map((p,i)=>({p,s:allPfSales[i],c:allPfCount[i],col:PF_COLORS[i],pct:Math.round(allPfSales[i]/pfTotalSales*100)}))].sort((a,b)=>b.s-a.s).map((r,i)=>`<tr>
+    <td style="text-align:left"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.col};margin-right:6px;vertical-align:middle"></span>${r.p}</td>
+    <td>${fmtK(r.s)}</td><td>${r.pct}%</td><td>${r.c}件</td>
+  </tr>`).join('');
+
+  return `
+    <div class="sec-h">全店舗サマリー（${selMonth}）</div>
+
+    <!-- ROW 1: 曜日/時間帯/媒体別 -->
+    <div class="analysis-top">
+      <div class="chart-card">
+        <h4>📅 曜日別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},allWdSales,WEEKDAYS,'#3B82F6')}
+      </div>
+      <div class="chart-card">
+        <h4>🕐 時間帯別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},hourSales,HOURS_LBL,'#8B5CF6')}
+      </div>
+      <div class="chart-card">
+        <h4>📱 媒体別 売上（全店舗）</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+          <div>${svgPie(130,130,pfPieData)}</div>
+          <div>
+            <table style="font-size:10px;width:100%">
+              <thead><tr><th style="text-align:left;background:none;font-size:9px">媒体</th><th style="background:none;font-size:9px">売上</th><th style="background:none;font-size:9px">割合</th><th style="background:none;font-size:9px">件数</th></tr></thead>
+              <tbody>${pfRankRows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: 予約時間別/利用目的/季節別 -->
+    <div class="analysis-top">
+      <div class="chart-card">
+        <h4>⏱ 予約時間別 件数</h4>
+        ${svgBar(240,120,{l:36,r:8,t:10,b:18},allDurCount,DUR_LBL,'#14B8A6')}
+        <div class="card" style="margin-top:8px;padding:0;overflow:hidden;box-shadow:none;border:1px solid #f1f5f9">
+          <table style="font-size:10px"><thead><tr><th style="text-align:left;background:none">時間</th><th style="background:none">件数</th><th style="background:none">割合</th><th style="background:none">売上推定</th></tr></thead>
+          <tbody>${durRows}</tbody></table>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>🎯 利用目的別</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>${svgPie(120,120,purposeData)}</div>
+          <div style="font-size:9px;padding-top:2px">
+            ${purposeData.map((d,i)=>`<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="width:7px;height:7px;border-radius:50%;background:${d.color};flex-shrink:0"></span><span style="flex:1;color:#334155">${d.label}</span><span style="color:#94a3b8">${Math.round(d.value/purposeData.reduce((a,x)=>a+x.value,0)*100)}%</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>🌸 季節別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},seasonSales,SEASONS,'#F59E0B')}
+      </div>
+    </div>
+
+    <!-- STORE CARDS -->
+    <div class="sec-h">各店舗 分析一覧（${selMonth}）— クリックで詳細へ</div>
+    <div style="font-size:10px;color:#64748b;margin-bottom:10px">
+      稼働率バー: <span style="color:#10b981">■ 60%以上</span> <span style="color:#f59e0b">■ 40〜60%</span> <span style="color:#ef4444">■ 40%未満</span>
+      &nbsp;/&nbsp; 各カードをクリックすると店舗別詳細画面へ移動します
+    </div>
+    <div class="store-grid" id="store-grid">${storeCards}</div>
+
+    <!-- CSV -->
+    <div class="sec-h" style="margin-top:16px">📂 CSVインポート（実データ切替）</div>
+    <div class="card">
+      <p style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.7">「統合予約DB」→「ファイル」→「ダウンロード」→「CSV」をアップロードすると媒体別・目的別が実データに切り替わります</p>
+      <div class="csv-drop" id="csv-drop"><div style="font-size:28px">📂</div><p>クリックしてCSVを選択、またはドラッグ&ドロップ</p><input type="file" id="csv-input" accept=".csv" style="display:none"></div>
+      ${csvData?`<div class="csv-ok">✅ ${csvData.length}件のデータを読み込みました</div>`:''}
+    </div>
+  `;
+}
+
+function pageStore(){
+  const d=DATA[selStore],li=MONTHS.indexOf(selMonth),l=d[li],p=d[Math.max(0,li-1)],color=COLORS[selStore];
+  // グラフは現在月までの過去12ヶ月のみ
+  const gsStart=Math.max(0,li-11),gsEnd=li+1;
+  const gd=d.slice(gsStart,gsEnd);
+  const labels=gd.map(r=>r.month.slice(5)+'月');
+  const bS=[{label:'固定費',color:'#94A3B8',data:gd.map(r=>r.fixed)},{label:'変動費',color:'#F97316',data:gd.map(r=>r.variable)}];
+  const lS=[{label:'売上',color,type:'line',data:gd.map(r=>r.sales)},{label:'粗利',color:'#10B981',type:'line',data:gd.map(r=>r.gp)}];
+  let pC='p-yellow',pM='稼働率は良好です。現状維持を推奨します。';
+  if(l.occ>=80){pC='p-green';pM='稼働率が高水準です。10〜15%の値上げを検討してください。';}
+  else if(l.occ<40){pC='p-red';pM='稼働率が低水準です。単価の大幅見直し・積極的なプロモーションが必要です。';}
+  else if(l.occ<60){pC='p-orange';pM='稼働率がやや低めです。プロモーションや期間限定割引を検討してください。';}
+
+  // 全店舗サマリーと同じ分析データ
+  const hourSales=HOUR_W.map(w=>Math.round(l.sales*w));
+  const seaSales=SEASONS.map((_,si)=>MONTHS.reduce((tot,_,mi)=>{
+    const mo=parseInt(MONTHS[mi].slice(5));
+    const mapped=[3,4,5].includes(mo)?0:[6,7,8].includes(mo)?1:[9,10,11].includes(mo)?2:3;
+    return mapped===si?tot+DATA[selStore][mi].sales:tot;
+  },0));
+  const purposeData=PURPOSE_LBL.map((lbl,i)=>({label:lbl,value:Math.round(l.sales*PURPOSE_W[i]),color:PURPOSE_COL[i]}));
+  const pfPieData=PLATFORMS.map((p,i)=>({label:p,value:l.pfSales[i],color:PF_COLORS[i]}));
+  const pfTotal=l.pfSales.reduce((a,v)=>a+v,0)||1;
+  const pfRankRows=PLATFORMS.map((p,i)=>({p,s:l.pfSales[i],c:l.pfCount[i],col:PF_COLORS[i],pct:Math.round(l.pfSales[i]/pfTotal*100)}))
+    .sort((a,b)=>b.s-a.s)
+    .map(r=>`<tr><td style="text-align:left"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.col};margin-right:6px;vertical-align:middle"></span>${r.p}</td><td>${fmtK(r.s)}</td><td>${r.pct}%</td><td>${r.c}件</td></tr>`).join('');
+
+  return `
+    ${storeDD(()=>render())}
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px">
+      ${kpiCard('売上',fmtK(l.sales),color,trnd(l.sales,p.sales))}
+      ${kpiCard('粗利',fmtK(l.gp),'#10B981',trnd(l.gp,p.gp))}
+      ${kpiCard('固定費',fmtK(l.fixed),'#6B7280',undefined,'家賃+電気+WiFi')}
+      ${kpiCard('変動費',fmtK(l.variable),'#F97316',undefined,'手数料+清掃')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px">
+      ${kpiCard('粗利率',l.margin+'%','#8B5CF6')}
+      ${kpiCard('稼働率',l.occ+'%','#14B8A6',undefined,l.oh+'h / 360h')}
+      ${kpiCard('空室率',l.vac+'%','#F59E0B')}
+      ${kpiCard('時間あたり粗利',fmt(l.hp),'#EC4899')}
+    </div>
+    <div class="bep-card">
+      <h4>損益分岐点（${selMonth}）</h4>
+      <div class="bep-row"><span class="bep-lbl">固定費</span><span class="bep-val">${fmtK(l.fixed)}</span></div>
+      <div class="bep-row"><span class="bep-lbl">損益分岐売上</span><span class="bep-val" style="color:#fbbf24">${fmtK(l.bep)}</span></div>
+      <div class="bep-row"><span class="bep-lbl">損益分岐稼働時間</span><span class="bep-val" style="color:#fbbf24">${l.beph}h / 月360h</span></div>
+      <div class="bep-row"><span class="bep-lbl">時間単位家賃</span><span class="bep-val">${fmt(l.hr)}/h</span></div>
+      <div class="bep-row"><span class="bep-lbl">達成率</span><span class="bep-val" style="color:${l.sales>=l.bep?'#4ade80':'#f87171'}">${Math.round(l.sales/l.bep*100)}%</span></div>
+      <div class="bep-prog"><div class="bep-fill" style="width:${Math.min(100,Math.round(l.sales/l.bep*100))}%;background:${l.sales>=l.bep?'#4ade80':'#f87171'}"></div></div>
+    </div>
+    <div class="proposal ${pC}" style="margin-bottom:10px"><h4>💡 適正単価の提案</h4><p>${pM}<br>稼働率: <strong>${l.occ}%</strong> / 時間単位家賃: <strong>${fmt(l.hr)}/h</strong> / 損益分岐稼働時間: <strong>${l.beph}h</strong></p></div>
+
+    <div class="sec-h">月次推移</div>
+    <div class="card">${svgCombined(700,200,{l:48,r:10,t:10,b:18},bS,lS,labels)}${legend([{label:'固定費',color:'#94A3B8',type:'bar'},{label:'変動費',color:'#F97316',type:'bar'},{label:'売上',color,type:'line'},{label:'粗利',color:'#10B981',type:'line'}])}</div>
+
+    <div class="sec-h">詳細分析（${selMonth}）</div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px">
+      <div class="chart-card">
+        <h4>📅 曜日別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},l.wdSales,WEEKDAYS,color,false)}
+      </div>
+      <div class="chart-card">
+        <h4>🕐 時間帯別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},hourSales,HOURS_LBL,'#8B5CF6',false)}
+      </div>
+      <div class="chart-card">
+        <h4>📱 媒体別 売上</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+          <div>${svgPie(130,130,pfPieData)}</div>
+          <div>
+            <table style="font-size:10px;width:100%">
+              <thead><tr><th style="text-align:left;background:none;font-size:9px">媒体</th><th style="background:none;font-size:9px">売上</th><th style="background:none;font-size:9px">割合</th><th style="background:none;font-size:9px">件数</th></tr></thead>
+              <tbody>${pfRankRows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px">
+      <div class="chart-card">
+        <h4>⏱ 予約時間別 件数</h4>
+        ${svgBar(240,140,{l:36,r:8,t:10,b:18},l.durCount,DUR_LBL,'#14B8A6',false)}
+      </div>
+      <div class="chart-card">
+        <h4>🎯 利用目的別</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>${svgPie(120,120,purposeData)}</div>
+          <div style="font-size:9px;padding-top:2px">
+            ${purposeData.map(d=>`<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="width:7px;height:7px;border-radius:50%;background:${d.color};flex-shrink:0"></span><span style="flex:1;color:#334155">${d.label}</span><span style="color:#94a3b8">${Math.round(d.value/purposeData.reduce((a,x)=>a+x.value,0)*100)}%</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>🌸 季節別 売上</h4>
+        ${svgBar(240,140,{l:44,r:8,t:10,b:18},seaSales,SEASONS,'#F59E0B',false)}
+      </div>
+    </div>
+  `;
+}
+
+
+function pageCompare(){
+  const metrics=[{k:'sales',l:'売上'},{k:'gp',l:'粗利'},{k:'occupancy',l:'稼働率(%)'},{k:'margin',l:'粗利率(%)'},{k:'hprofit',l:'時間粗利'}];
+  const isYen=['sales','gp','hprofit'].includes(compareMetric);
+  const labels=MONTHS.map(m=>m.slice(5)+'月');
+  const li=MONTHS.indexOf(selMonth);
+  const ranking=[...STORES].map(s=>({store:s,...DATA[s][li]})).sort((a,b)=>b.sales-a.sales);
+  const lineSeries=STORES.map(s=>({label:s,color:COLORS[s],type:'line',data:MONTHS.map((_,i)=>DATA[s][i][compareMetric])}));
+  const rows=ranking.map((r,i)=>`<tr>
+    <td style="text-align:left"><strong style="color:${i<3?'#f59e0b':'#94a3b8'}">#${i+1}</strong></td>
+    <td style="text-align:left"><span style="width:7px;height:7px;border-radius:50%;background:${COLORS[r.store]};display:inline-block;margin-right:6px;vertical-align:middle"></span>${r.store}</td>
+    <td>${fmtK(r.sales)}</td>
+    <td style="color:${r.gp>=0?'#10b981':'#ef4444'};font-weight:700">${fmtK(r.gp)}</td>
+    <td>${r.margin}%</td><td>${r.occupancy}%</td><td>${r.vacancy}%</td><td>${fmt(r.hprofit)}</td>
+  </tr>`).join('');
+  return `
+    <div class="mtabs">${metrics.map(m=>`<button class="mtab${compareMetric===m.k?' act':''}" data-k="${m.k}">${m.l}</button>`).join('')}</div>
+    <div class="card">${svgLine(700,250,{l:48,r:10,t:10,b:18},lineSeries,labels)}${legend(lineSeries)}</div>
+    <div class="sec-h">店舗ランキング（${selMonth}）</div>
+    <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table>
+      <thead><tr><th style="text-align:left">#</th><th style="text-align:left">店舗</th><th>売上</th><th>粗利</th><th>粗利率</th><th>稼働率</th><th>空室率</th><th>時間粗利</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>
+  `;
+}
+
+function pagePulse(){
+  const storeOpts=['全店舗',...STORES];
+  const tabs=storeOpts.map(s=>`<button class="pulse-tab${pulseStore===s?' act':''}" data-s="${s}">${s.replace('ECHOES','E.').replace('OASIS','O.').replace('SHEERS','SH.')}</button>`).join('');
+  // 現在月までのみ表示（未来月除外）
+  const li2=MONTHS.indexOf(selMonth);
+  const cards=MONTHS.slice(0,li2+1).reverse().map(month=>{
+    const mi=MONTHS.indexOf(month),key=`${pulseStore}__${month}`;
+    const note=notes[key]||'',isEdit=pulseEdit===key;
+    let badges='';
+    if(pulseStore==='全店舗'){
+      const t=STORES.reduce((a,s)=>({s:a.s+DATA[s][mi].sales,g:a.g+DATA[s][mi].gp}),{s:0,g:0});
+      badges=`<span class="badge bg-teal">売上 ${fmtK(t.s)}</span><span class="badge ${t.g>=0?'bg-green':'bg-red'}">粗利 ${fmtK(t.g)}</span>`;
+    } else {
+      const r=DATA[pulseStore][mi];
+      badges=`<span class="badge bg-teal">売上 ${fmtK(r.sales)}</span><span class="badge ${r.gp>=0?'bg-green':'bg-red'}">粗利 ${fmtK(r.gp)}</span><span class="badge bg-yellow">稼働率 ${r.occupancy}%</span>`;
+    }
+    return `<div class="pulse-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><span style="font-weight:700;font-size:12px;color:#0f3460">${month}</span><div class="badges">${badges}</div></div>
+        ${!isEdit?`<button style="font-size:11px;color:#0f766e;background:none;padding:2px 6px;cursor:pointer;font-weight:600" class="pulse-edit-btn" data-k="${key}" data-v="${encodeURIComponent(note)}">${note?'✏ 編集':'＋ 記録'}</button>`:''}
+      </div>
+      ${isEdit?`<textarea class="pulse-ta" id="ta-${key.replace(/[^a-z0-9]/gi,'_')}">${pulseDraft}</textarea>
+        <div style="display:flex;gap:7px;margin-top:7px">
+          <button style="padding:5px 14px;background:#0f766e;color:#fff;border-radius:7px;font-size:11px;font-weight:700" class="btn-save" data-k="${key}" data-ta="ta-${key.replace(/[^a-z0-9]/gi,'_')}">保存</button>
+          <button style="padding:5px 12px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:7px;font-size:11px" class="btn-cancel">キャンセル</button>
+        </div>`:
+      note?`<div class="pulse-note">${note}</div>`:''}
+    </div>`;
+  }).join('');
+  return `<div style="font-size:11px;color:#94a3b8;margin-bottom:10px">KPIの変化と現場の理由をセットで記録します</div><div class="pulse-tabs">${tabs}</div>${cards}`;
+}
+
+// ── CSV ────────────────────────────────────────────────────────
+
+function parseCostCSV(text){
+  try{
+    const lines=text.split(/\\r?\\n/).filter(l=>l.trim());
+    if(lines.length<2)return null;
+    const h=lines[0].split(',').map(x=>x.trim().replace(/^"|"$/g,''));
+    const ix={store:h.indexOf('店舗名'),ym:h.indexOf('年月'),rent:h.indexOf('家賃'),
+               elec:h.indexOf('水光熱費'),wifi:h.indexOf('WiFi代'),clean:h.indexOf('清掃費')};
+    if(ix.store<0||ix.ym<0||ix.rent<0)return null;
+    const costData={};
+    lines.slice(1).forEach(line=>{
+      const c=line.split(',').map(x=>x.trim().replace(/^"|"$/g,''));
+      const s=c[ix.store],ym=c[ix.ym];
+      if(!s||!ym)return;
+      if(!costData[s])costData[s]={};
+      costData[s][ym]={
+        rent:parseFloat(c[ix.rent])||0,
+        elec:parseFloat(c[ix.elec])||0,
+        wifi:parseFloat(c[ix.wifi])||0,
+        clean:parseFloat(c[ix.clean])||0
+      };
+    });
+    return costData;
+  }catch(e){return null;}
+}
+
+function applyCostData(costData){
+  const MIN_RENT=1000;
+  const median=arr=>{if(!arr.length)return 0;const s=[...arr].sort((a,b)=>a-b);return s[Math.floor(s.length/2)];};
+  let updated=0;
+
+  // storeConfigを中央値で更新
+  STORES.forEach(s=>{
+    if(!costData[s])return;
+    const vals=Object.values(costData[s]);
+    const vr=vals.map(c=>c.rent).filter(r=>r>MIN_RENT);
+    const ve=vals.map(c=>c.elec).filter(e=>e>0);
+    const vw=vals.map(c=>c.wifi).filter(w=>w>0);
+    const vc=vals.map(c=>c.clean).filter(c=>c>0);
+    if(vr.length)storeConfig[s].rent=median(vr);
+    if(ve.length)storeConfig[s].elec=median(ve);
+    if(vw.length)storeConfig[s].wifi=median(vw);
+    if(vc.length)storeConfig[s].clean=median(vc);
+    updated++;
+  });
+  saveStoreConfig();
+
+  // 月次データを店舗シートの値で更新
+  STORES.forEach(s=>{
+    if(!costData[s])return;
+    MONTHS.forEach((m,mi)=>{
+      const r=DATA[s][mi];
+      const c=costData[s][m];
+
+      // コスト（中央値でフォールバック）
+      r.rent =(c&&c.rent >MIN_RENT)?c.rent :storeConfig[s].rent;
+      r.elec =(c&&c.elec >0)?c.elec :storeConfig[s].elec;
+      r.wifi =(c&&c.wifi >0)?c.wifi :storeConfig[s].wifi;
+      r.clean=(c&&c.clean>0)?c.clean:storeConfig[s].clean;
+      r.other=(c&&c.other>0)?c.other:0;
+
+      // 売上・手数料・件数（データがある月のみ上書き）
+      if(c&&c.sales>0){
+        r.sales=c.sales;
+        // シートに手数料がある場合はそのまま使用。
+        // 0の場合は売上の31%をフォールバックとして計算（手数料未入力月）
+        r.fee  =(c.fee>0)?c.fee:Math.round(c.sales*0.31);
+        if(c.res>0)r.res=c.res;
+      }
+
+      // 固定費・変動費を計算
+      r.fixed   =r.rent+r.elec+r.wifi;
+      r.variable=r.fee+r.clean+r.other; // 清掃費・その他を必ず含む
+
+      // 粗利：店舗シートの営業利益(O列)を最優先
+      // なければ 売上-固定費-変動費（清掃費含む）で計算
+      if(c&&c.gp!=null&&c.gp!==0&&c.sales>0){
+        r.gp=c.gp; // スプシのO列（営業利益）をそのまま使用
+      } else {
+        r.gp=r.sales-r.fixed-r.variable; // 清掃費含めて計算
+      }
+
+      r.margin =r.sales>0?Math.round(r.gp/r.sales*100):0;
+      const hr =r.rent/360;
+      r.hr     =Math.round(hr);
+      r.oh     =hr>0?Math.round(r.sales/hr):0;
+      r.occ    =Math.min(100,Math.round(r.oh/360*100));
+      r.vac    =100-r.occ;
+      r.hp     =r.oh>0?Math.round(r.gp/r.oh):0;
+      r.vr     =r.sales>0?r.variable/r.sales:0.35;
+      r.cr     =1-r.vr;
+      r.bep    =r.cr>0?Math.round(r.fixed/r.cr):0;
+      r.beph   =hr>0?Math.round(r.bep/hr):0;
+    });
+  });
+  return updated;
+}
+
+var costCSVData=null;
+function pageSettings(){
+  var cfgRows=STORES.map(function(s){
+    var c=storeConfig[s];
+    return '<tr>'+
+      '<td style="text-align:left;padding:8px 10px;font-weight:600;color:#0f3460">'+
+      '<span style="width:8px;height:8px;border-radius:50%;background:'+COLORS[s]+';display:inline-block;margin-right:7px;vertical-align:middle"></span>'+s+'</td>'+
+      ['rent','elec','wifi','clean'].map(function(k){
+        return '<td style="padding:5px 4px"><input class="cfg-inp" data-s="'+s+'" data-k="'+k+'" type="number" value="'+c[k]+'" style="width:82px;padding:5px 7px;border-radius:6px;border:1px solid #e2e8f0;font-size:11px;text-align:right"></td>';
+      }).join('')+'</tr>';
+  }).join('');
+
+  function uploadBox(id, icon, title, desc, loaded, resetId){
+    var badge=loaded?'<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<span>&#x2705;</span><div style="font-size:11px;font-weight:700;color:#065f46">&#x8aad;&#x8fbc;&#x6e08;&#x307f;</div>'+
+      '<button id="'+resetId+'" style="margin-left:auto;padding:4px 10px;background:#fff;color:#ef4444;border:1px solid #fca5a5;border-radius:6px;font-size:10px">&#x30af;&#x30ea;&#x30a2;</button></div>':'';
+    return '<div class="card">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+      '<span style="font-size:18px">'+icon+'</span>'+
+      '<span style="font-size:13px;font-weight:700;color:#0f3460">'+title+'</span></div>'+
+      '<div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.7">'+desc+'</div>'+
+      badge+
+      '<label for="'+id+'" style="display:block;border:2px dashed #cbd5e1;border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:#f8fafc">'+
+      '<div style="font-size:24px;margin-bottom:6px">&#x1f4c2;</div>'+
+      '<div style="font-size:11px;color:#64748b">&#x30af;&#x30ea;&#x30c3;&#x30af;&#x3057;&#x3066;CSV&#x3092;&#x9078;&#x629e;</div>'+
+      '<input type="file" id="'+id+'" accept=".csv" style="display:none" '+
+      'onchange="var f=this.files[0];if(!f)return;'+
+      'if(id===\'csv-input-s\'){readCSV(f);}'+
+      'else if(id===\'cost-input\'){var r=new FileReader();r.onload=function(e){var res=parseCostCSV(e.target.result);if(!res){alert(\'固定費CSVの形式を認識できませんでした。\');return;}costCSVData=res;var n=applyCostData(res);alert(\'✅ \'+n+\'店舗の固定費を読み込みました。\');render();};r.readAsText(f,\'UTF-8\');}'+
+      'else if(id===\'occ-input\'){var r=new FileReader();r.onload=function(e){var res=parseOccupancyCSV(e.target.result);if(!res){alert(\'稼働時間CSVの形式を認識できませんでした。\');return;}occCSVData=res;var n=applyOccupancyData(res);alert(\'✅ \'+n+\'件の稼働時間を読み込みました。\');render();};r.readAsText(f,\'UTF-8\');}">'+
+      '</label>'+
+      '</div>';
+  }
+
+  return '<div class="card" style="background:linear-gradient(135deg,#10b981,#0f766e);color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:14px">'+
+    '<div style="flex:1">'+
+    '<div style="font-size:13px;font-weight:700;margin-bottom:4px">&#x1f504; Google Sheets 自動同期</div>'+
+    '<div id="gs-status" style="font-size:11px;color:#a7f3d0">'+(localStorage.getItem('sh_gs_updated')||'未取得')+'</div>'+
+    '</div>'+
+    '<button id="gs-fetch-btn" style="padding:10px 20px;background:#fff;color:#0f766e;border-radius:10px;font-size:13px;font-weight:800;white-space:nowrap">&#x21bb; 今すぐ更新</button>'+
+    '<button onclick="debugGsSheets()" style="padding:10px 14px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;margin-left:6px">🔍 接続テスト</button>'+
+    '</div>'+
+    '<div id="gs-debug" style="display:none;background:#0f172a;color:#a7f3d0;font-family:monospace;font-size:10px;padding:10px 12px;border-radius:8px;margin-bottom:10px;line-height:1.8;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>'+
+    '<div class="card" style="background:linear-gradient(135deg,#0f3460,#1e5f88);color:#e2f4f0;margin-bottom:14px">'+
+    '<div style="font-size:13px;font-weight:700;margin-bottom:8px">&#x1f4cb; &#x6bce;&#x6708;&#x306e;&#x66f4;&#x65b0;&#x624b;&#x9806;</div>'+
+    '<div style="font-size:11px;line-height:2.2;color:#a0cfe8">'+
+    '&#x2460; Apps Script&#x3067; updateCostSheet &#x3092;&#x5b9f;&#x884c; &#x2192; &#x30b3;&#x30b9;&#x30c8;&#x4e00;&#x89a7;_DB &#x30b7;&#x30fc;&#x30c8;&#x304c;&#x66f4;&#x65b0;&#x3055;&#x308c;&#x308b;<br>'+
+    '&#x2461; &#x3053;&#x3053;&#x306e;3&#x3064;&#x306eCSV&#x3092;&#x30c0;&#x30a6;&#x30f3;&#x30ed;&#x30fc;&#x30c9;&#x3057;&#x3066;&#x4e0b;&#x306e;&#x30a8;&#x30ea;&#x30a2;&#x306b;&#x30a2;&#x30c3;&#x30d7;&#x30ed;&#x30fc;&#x30c9;'+
+    '</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px">'+
+    uploadBox('cost-input','&#x1f7e3;','&#x30b3;&#x30b9;&#x30c8;&#x4e00;&#x89a7;_DB.csv','&#x5bb6;&#x8ccc;&#x30fb;&#x6c34;&#x5149;&#x71b1;&#x8cbb;&#x30fbWiFi&#x30fb;&#x6e05;&#x6383;&#x8cbb;',costCSVData,'reset-cost')+
+    uploadBox('csv-input-s','&#x1f535;','&#x7d71;&#x5408;&#x4e88;&#x7d04;DB.csv','&#x58f2;&#x4e0a;&#x30fb;&#x624b;&#x6570;&#x6599;&#x30fb;&#x4e88;&#x7d04;&#x4ef6;&#x6570;&#x30fb;&#x5a92;&#x4f53;&#x5225;&#x30c7;&#x30fc;&#x30bf;',(usingRealData&&csvData),'reset-data')+
+    uploadBox('occ-input','&#x1f7e2;','&#x7a3c;&#x50cd;&#x6642;&#x9593;_DB.csv','Google&#x30ab;&#x30ec;&#x30f3;&#x30c0;&#x30fc;&#x304b;&#x3089;&#x53d6;&#x5f97;&#x3057;&#x305f;&#x5b9f;&#x969b;&#x306e;&#x7a3c;&#x50cd;&#x7387;&#x306b;&#x66f4;&#x65b0;',occCSVData,'reset-occ')+
+    '</div>'+
+    '<div class="sec-h">&#x56fa;&#x5b9a;&#x8cbb; &#x624b;&#x52d5;&#x8a2d;&#x5b9a;&#xff08;CSV&#x304c;&#x4f7f;&#x3048;&#x306a;&#x3044;&#x5834;&#x5408;&#xff09;</div>'+
+    '<div class="card">'+
+    '<div style="font-size:11px;color:#64748b;margin-bottom:10px">CSV&#x3092;&#x30a2;&#x30c3;&#x30d7;&#x30ed;&#x30fc;&#x30c9;&#x3057;&#x3066;&#x3044;&#x308b;&#x5834;&#x5408;&#x306f;&#x4e0d;&#x8981;&#x3067;&#x3059;&#x3002;</div>'+
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
+    '<thead><tr style="background:#f8fafc">'+
+    '<th style="text-align:left;padding:8px 10px;color:#475569;font-size:10px;border-bottom:1.5px solid #e2e8f0">&#x5e97;&#x8217;</th>'+
+    '<th style="padding:8px 6px;color:#475569;font-size:10px;border-bottom:1.5px solid #e2e8f0">&#x5bb6;&#x8ccc;(&#x5186;)</th>'+
+    '<th style="padding:8px 6px;color:#475569;font-size:10px;border-bottom:1.5px solid #e2e8f0">&#x6c34;&#x5149;&#x71b1;&#x8cbb;(&#x5186;)</th>'+
+    '<th style="padding:8px 6px;color:#475569;font-size:10px;border-bottom:1.5px solid #e2e8f0">WiFi&#x4ee3;(&#x5186;)</th>'+
+    '<th style="padding:8px 6px;color:#475569;font-size:10px;border-bottom:1.5px solid #e2e8f0">&#x6e05;&#x6383;/&#x6708;(&#x5186;)</th>'+
+    '</tr></thead><tbody>'+cfgRows+'</tbody></table></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px">'+
+    '<button id="save-cfg" style="padding:8px 20px;background:#0f766e;color:#fff;border-radius:8px;font-size:12px;font-weight:700">&#x4fdd;&#x5b58;&#x3057;&#x3066;&#x518d;&#x8a08;&#x7b97;</button>'+
+    '<button id="reset-cfg" style="padding:8px 14px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;font-size:11px">&#x30c7;&#x30d5;&#x30a9;&#x30eb;&#x30c8;&#x306b;&#x623b;&#x3059;</button>'+
+    '</div></div>';
+}
+
+function pageStrategy(){
+  const li=MONTHS.indexOf(selMonth);
+  const plans=STORES.map(s=>{
+    const r=DATA[s][li];
+    const trend=li>=2?Math.round((r.sales-DATA[s][Math.max(0,li-2)].sales)/Math.max(DATA[s][Math.max(0,li-2)].sales,1)*100):0;
+    let maxPfIdx=0,maxPfw=0;
+    (r.pfw||r.pfW||[]).forEach((w,i)=>{if(w>maxPfw){maxPfw=w;maxPfIdx=i;}});
+    const maxPct=Math.round(maxPfw*100);
+    let status,sc,sl;
+    if(r.occ>=60&&r.gp>0){status='🟢';sc='#10b981';sl='好調';}
+    else if(r.occ>=40||r.gp>0){status='🟡';sc='#f59e0b';sl='要観察';}
+    else{status='🔴';sc='#ef4444';sl='要対策';}
+    const recs=[];
+    if(r.occ>=80){recs.push('稼働率が高水準です。10〜15%の値上げを検討しましょう');recs.push('土日・夕方などピーク時間帯の単価を重点的に引き上げる施策が有効です');}
+    else if(r.occ>=60){recs.push('稼働率は良好です。価格の微調整で売上拡大の余地があります');recs.push('定期利用プランの設定で平日稼働率をさらに引き上げましょう');}
+    else if(r.occ>=40){recs.push('平日・午前中の空室が多い状態です。割引プランや半日パックで稼働時間を伸ばしましょう');recs.push('リピート特典を設けて固定客の獲得を強化しましょう');}
+    else{recs.push('稼働率が低水準です。料金体系の抜本的な見直しが必要です');recs.push('初回クーポン・法人パック・長時間割引など積極的な集客施策を展開しましょう');}
+    if(maxPct>=50)recs.push(`${PLATFORMS[maxPfIdx]}への依存が${maxPct}%と高めです。他媒体への出稿を強化してリスクを分散しましょう`);
+    if(r.margin<20)recs.push('粗利率が低めです。変動費の見直しと客単価の引き上げを優先してください');
+    if(trend<-10)recs.push('直近の売上が下降傾向です。写真・説明文のリニューアルや季節限定プランを検討してください');
+    else if(trend>15)recs.push('直近の売上が好調に推移しています。口コミ促進策を強化しましょう');
+    return {s,r,color:COLORS[s],status,sc,sl,recs,trend,maxPfIdx,maxPct};
+  });
+
+  const tOcc=Math.round(plans.reduce((a,p)=>a+p.r.occ,0)/plans.length);
+  const gCnt=plans.filter(p=>p.status==='🟢').length;
+  const rCnt=plans.filter(p=>p.status==='🔴').length;
+  let bCls,bIcon,bTitle,bSub;
+  if(gCnt>=6){bCls='s-green';bIcon='🎉';bTitle='全体的に好調です！';bSub=`${gCnt}店舗が好調。平均稼働率${tOcc}%。値上げや新規出店のタイミングを検討しましょう。`;}
+  else if(rCnt>=3){bCls='s-red';bIcon='⚠️';bTitle='要注意店舗が多い状況です';bSub=`${rCnt}店舗が要対策。緊急施策の実施と原因分析を優先してください。`;}
+  else{bCls='s-yellow';bIcon='📊';bTitle='一部店舗で改善の余地があります';bSub=`平均稼働率${tOcc}%。下記の優先施策を実行して収益性を改善しましょう。`;}
+
+  const ssCards=plans.map(p=>`<div class="ss-card" style="border-top-color:${p.color}">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <span style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0"></span>
+      <span style="font-size:11px;font-weight:700;color:#0f3460;flex:1">${p.s.replace('ECHOES','E.').replace('OASIS','O.').replace('SHEERS','SH.')}</span>
+      <span>${p.status}</span>
+    </div>
+    <div style="display:flex;gap:6px;font-size:10px;flex-wrap:wrap">
+      <span>売上 <strong>${fmtK(p.r.sales)}</strong></span>
+      <span>稼働 <strong style="color:${p.sc}">${p.r.occ}%</strong></span>
+      <span>粗利率 <strong>${p.r.margin}%</strong></span>
+    </div>
+    <div style="font-size:9px;padding:3px 7px;border-radius:5px;background:${p.sc}22;color:${p.sc};font-weight:700;display:inline-block;margin-top:4px">${p.sl}</div>
+  </div>`).join('');
+
+  const urgent=plans.filter(p=>p.status==='🔴').slice(0,3);
+  const good=plans.filter(p=>p.status==='🟢').slice(0,2);
+  const m0=selMonth,m1=MONTHS[Math.min(MONTHS.indexOf(selMonth)+1,MONTHS.length-1)],m2=MONTHS[Math.min(MONTHS.indexOf(selMonth)+2,MONTHS.length-1)];
+
+  const acCards=plans.map(p=>{
+    const key=`strategy__${p.s}`;
+    const note=snotes[key]||'',isEdit=snEdit===key;
+    const taid=`sn-${key.replace(/[^a-z0-9]/gi,'_')}`;
+    const dismissed=dismissedRecs[p.s]||[];
+    const visRecs=p.recs.filter(r=>!dismissed.includes(r));
+    const custR=customRecs[p.s]||[];
+    return `<div class="action-card" style="border-left-color:${p.sc}">
+      <div class="action-hdr">
+        <span style="width:9px;height:9px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span>
+        <span class="action-name">${p.s}</span>
+        <span class="s-badge" style="background:${p.sc}22;color:${p.sc}">${p.status} ${p.sl}</span>
+        <span style="font-size:10px;color:#94a3b8">稼働${p.r.occ}% / 粗利率${p.r.margin}% / ${PLATFORMS[p.maxPfIdx]} ${p.maxPct}%</span>
+      </div>
+      <ul class="rec-list">
+        ${visRecs.map(r=>`<li><span style="flex:1">${r}</span><button class="del-rec" data-s="${p.s}" data-r="${encodeURIComponent(r)}" style="background:none;color:#cbd5e1;font-size:14px;padding:0 5px;flex-shrink:0">&times;</button></li>`).join('')}
+        ${custR.map((r,ri)=>`<li style="background:#eff6ff"><span style="flex:1;color:#1e40af">${r}</span><button class="del-cus" data-s="${p.s}" data-ri="${ri}" style="background:none;color:#93c5fd;font-size:14px;padding:0 5px;flex-shrink:0">&times;</button></li>`).join('')}
+        ${dismissed.length?`<li style="background:transparent"><button class="restore-r" data-s="${p.s}" style="background:none;color:#14b8a6;font-size:10px;text-decoration:underline">↺ 削除した提案を元に戻す(${dismissed.length}件)</button></li>`:''}
+      </ul>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+        <input type="text" class="cri" data-s="${p.s}" placeholder="課題・独自施策を追加..." style="flex:1;padding:6px 10px;border-radius:7px;border:1px solid #e2e8f0;font-size:11px;background:#f8fafc">
+        <button class="acr" data-s="${p.s}" style="padding:6px 12px;background:#0f766e;color:#fff;border-radius:7px;font-size:11px;font-weight:700">＋追加</button>
+      </div>
+      <div style="margin-top:10px;border-top:1px solid #f1f5f9;padding-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:10px;font-weight:700;color:#64748b">📝 オーナーメモ</span>
+          ${!isEdit?`<button class="sn-e" data-k="${key}" data-v="${encodeURIComponent(note)}" style="font-size:10px;color:#0f766e;background:none;font-weight:700">${note?'✏ 編集':'＋ 記録'}</button>`:''}
+        </div>
+        ${isEdit?`<textarea class="sn-ta" id="${taid}">${snDraft}</textarea>
+          <div style="display:flex;gap:7px;margin-top:7px">
+            <button class="sn-s" data-k="${key}" data-ta="${taid}" style="padding:5px 14px;background:#0f766e;color:#fff;border-radius:7px;font-size:11px;font-weight:700">保存</button>
+            <button class="sn-c" style="padding:5px 12px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:7px;font-size:11px">キャンセル</button>
+          </div>`:
+        note?`<div style="font-size:11px;color:#475569;line-height:1.8;white-space:pre-wrap">${note}</div>`:
+        '<div style="font-size:11px;color:#94a3b8">このスペースに自分の施策メモを残せます</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:11px;color:#475569;line-height:1.8">
+    <strong style="color:#0f3460">ℹ️ 提案の自動生成ルール</strong><br>
+    <span style="color:#10b981">■ 稼働率80%以上</span>→値上げ提案　
+    <span style="color:#f59e0b">■ 60〜80%</span>→微調整　
+    <span style="color:#f97316">■ 40〜60%</span>→プロモ提案　
+    <span style="color:#ef4444">■ 40%未満</span>→根本見直し<br>
+    <span style="color:#94a3b8">提案は × で非表示。独自の課題・施策は入力欄から追加できます。</span>
+  </div>
+  <div class="s-banner ${bCls}"><span class="s-banner-icon">${bIcon}</span><div><div class="s-banner-title">${bTitle}</div><div class="s-banner-sub">${bSub}</div></div></div>
+  <div class="sec-h">全店舗 状況一覧（${selMonth}）</div><div class="ss-grid">${ssCards}</div>
+  <div class="sec-h">優先施策</div>
+  <div class="p3">
+    <div class="p-card"><h4>🔴 緊急対応が必要な店舗</h4>${urgent.length?urgent.map(p=>`<p><strong>${p.s}:</strong><br>${p.recs[0]}</p>`).join('<hr style="border:none;border-top:1px solid #f1f5f9;margin:5px 0">'):  '<p style="color:#94a3b8">現在、緊急対応が必要な店舗はありません。</p>'}</div>
+    <div class="p-card"><h4>📊 全店共通の重点施策</h4><p>① 全店舗の媒体分散を進め、1媒体50%以上の依存をなくす</p><hr style="border:none;border-top:1px solid #f1f5f9;margin:5px 0"><p>② 平日稼働率の底上げ（定期利用プランの設定）</p><hr style="border:none;border-top:1px solid #f1f5f9;margin:5px 0"><p>③ 損益分岐稼働時間を意識した価格設定の見直し</p></div>
+    <div class="p-card"><h4>🟢 好調店舗の水平展開</h4>${good.length?good.map(p=>`<p><strong>${p.s}:</strong> 稼働率${p.r.occ}%の成功要因を他店舗へ展開しましょう</p>`).join('<hr style="border:none;border-top:1px solid #f1f5f9;margin:5px 0">')+'<hr style="border:none;border-top:1px solid #f1f5f9;margin:5px 0"><p>好調店舗の写真・説明文・価格設定をモデルケースとして共有する</p>':'<p style="color:#94a3b8">好調店舗が出てきたら施策を水平展開します。</p>'}</div>
+  </div>
+  <div class="timeline">
+    <div style="font-size:12px;font-weight:700;color:#0f3460;margin-bottom:10px">📅 今後90日間のアクションプラン</div>
+    <div class="tl-row"><div class="tl-month">${m0}<br>今月</div><div class="tl-items"><div class="tl-item">各店舗の稼働率・媒体比率を確認し、要対策店舗をリストアップ</div><div class="tl-item">空室率が高い店舗の価格設定と写真・説明文を見直す</div><div class="tl-item">1媒体依存が高い店舗で新規媒体への出稿を開始する</div></div></div>
+    <div class="tl-row"><div class="tl-month">${m1}<br>来月</div><div class="tl-items"><div class="tl-item">施策の効果測定（稼働率・予約件数の変化を確認）</div><div class="tl-item">定期利用・法人パックの反応を確認し、プランを最適化する</div><div class="tl-item">稼働率80%超の店舗は価格引き上げを実施</div></div></div>
+    <div class="tl-row"><div class="tl-month">${m2}<br>再来月</div><div class="tl-items"><div class="tl-item">全店舗のKPIレビューと次四半期の目標設定</div><div class="tl-item">好調店舗の成功要因を分析し、他店舗へ水平展開</div><div class="tl-item">新規スペースの開拓・既存スペースの設備投資判断</div></div></div>
+  </div>
+  <div class="sec-h">店舗別 アクションプランと施策メモ</div>${acCards}`;
+}
+
+
+// ── 前年度実績データ（2024年4月〜2025年3月）──────────────────
+// 旧店舗名→新店舗名 でマッピング済み
+const PREV_YEAR_DATA={
+  "SHEERS京都七条":{sales:{"2024/06":8580,"2024/07":86482,"2024/08":226390,"2024/09":97025,"2024/10":44656,"2024/11":105972,"2024/12":326568,"2025/01":161755,"2025/02":107563,"2025/03":125477,"2025/04":52789,"2025/05":106838,"2025/06":78501,"2025/07":52481,"2025/08":119163,"2025/09":165555},fixed:{"2024/06":15000,"2024/07":15000,"2024/08":18136,"2024/09":19496,"2024/10":11200,"2024/11":12400,"2024/12":15800,"2025/01":12600,"2025/02":13100,"2025/03":13900,"2025/04":11900,"2025/05":12800,"2025/06":13800,"2025/07":8917,"2025/08":8169,"2025/09":9573},gp:{"2024/06":-66194,"2024/07":-11948,"2024/08":90308,"2024/09":-11760,"2024/10":-36895,"2024/11":1580,"2024/12":152449,"2025/01":41340,"2025/02":8991,"2025/03":15738,"2025/04":-32339,"2025/05":3263,"2025/06":-15494,"2025/07":-30136,"2025/08":20383,"2025/09":53419}},
+  "OASIS京都❷":{sales:{"2024/10":249100,"2024/11":293405,"2024/12":543361,"2025/01":213740,"2025/02":210469,"2025/03":224545,"2025/04":152212,"2025/05":216547,"2025/06":177485,"2025/07":113954,"2025/08":170610,"2025/09":192115},fixed:{"2024/10":12600,"2024/11":15400,"2024/12":13600,"2025/01":15400,"2025/02":13300,"2025/03":12300,"2025/04":12800,"2025/05":15000,"2025/06":13700,"2025/07":10700,"2025/08":11900,"2025/09":12300},gp:{"2024/10":109469,"2024/11":128556,"2024/12":306928,"2025/01":80032,"2025/02":77961,"2025/03":88535,"2025/04":35158,"2025/05":79318,"2025/06":52209,"2025/07":13268,"2025/08":50834,"2025/09":66787}},
+  "OASIS京都":{sales:{"2024/08":250075,"2024/09":279078,"2024/10":315558,"2024/11":314774,"2024/12":756509,"2025/01":283564,"2025/02":194592,"2025/03":234593,"2025/04":123112,"2025/05":133174,"2025/06":139644,"2025/07":44150,"2025/08":96754,"2025/09":104381},fixed:{"2024/08":10825,"2024/09":14778,"2024/10":12016,"2024/11":11800,"2024/12":13200,"2025/01":13800,"2025/02":11300,"2025/03":10300,"2025/04":9000,"2025/05":9000,"2025/06":9400,"2025/07":9083,"2025/08":9284,"2025/09":9848},gp:{"2024/08":112064,"2024/09":132188,"2024/10":161600,"2024/11":154515,"2024/12":461808,"2025/01":133990,"2025/02":74333,"2025/03":106370,"2025/04":27861,"2025/05":32331,"2025/06":34726,"2025/07":-27677,"2025/08":11025,"2025/09":12602}},
+  "OASIS京都東":{sales:{"2024/05":24573,"2024/06":71115,"2024/07":101934,"2024/08":70577,"2024/09":31472,"2024/10":77970,"2024/11":63580,"2024/12":218576,"2025/01":136284,"2025/02":124117,"2025/03":66550,"2025/04":75525,"2025/05":111376,"2025/06":145143,"2025/07":76618,"2025/08":146626,"2025/09":128202},fixed:{"2024/05":5000,"2024/06":6500,"2024/07":6906,"2024/08":3123,"2024/09":3266,"2024/10":6500,"2024/11":6500,"2024/12":8200,"2025/01":8200,"2025/02":5000,"2025/03":8000,"2025/04":6700,"2025/05":6500,"2025/06":8700,"2025/07":3992,"2025/08":6240,"2025/09":2910},gp:{"2024/05":-29375,"2024/06":3306,"2024/07":25318,"2024/08":6861,"2024/09":-20803,"2024/10":9783,"2024/11":-1500,"2024/12":103659,"2025/01":46971,"2025/02":45033,"2025/03":803,"2025/04":9655,"2025/05":35977,"2025/06":61705,"2025/07":16555,"2025/08":59296,"2025/09":53640}},
+  "ECHOES新大阪":{sales:{"2024/04":264471,"2024/05":298961,"2024/06":318899,"2024/07":345979,"2024/08":237243,"2024/09":257862,"2024/10":353919,"2024/11":369594,"2024/12":689035,"2025/01":245421,"2025/02":350375,"2025/03":494093,"2025/04":210860,"2025/05":201033,"2025/06":302389,"2025/07":183940,"2025/08":164000,"2025/09":478244},fixed:{"2024/04":42500,"2024/05":25000,"2024/06":23862,"2024/07":18183,"2024/08":17500,"2024/09":12500,"2024/10":17500,"2024/11":23377,"2024/12":19908,"2025/01":12500,"2025/02":11800,"2025/03":17200,"2025/04":17200,"2025/05":19000,"2025/06":17200,"2025/07":17200,"2025/08":19000,"2025/09":15400},gp:{"2024/04":30076,"2024/05":61299,"2024/06":88906,"2024/07":119374,"2024/08":54348,"2024/09":67517,"2024/10":127432,"2024/11":136405,"2024/12":371332,"2025/01":50830,"2025/02":134726,"2025/03":226916,"2025/04":24543,"2025/05":15907,"2025/06":90093,"2025/07":781,"2025/08":-12451,"2025/09":214881}},
+  "ECHOES京都中央":{sales:{"2025/01":69850,"2025/02":389200,"2025/03":1148620,"2025/04":369140,"2025/05":729837,"2025/06":720252,"2025/07":355795,"2025/08":168575,"2025/09":337150},fixed:{"2025/01":13244,"2025/02":21841,"2025/03":32914,"2025/04":15923,"2025/05":23608,"2025/06":23281,"2025/07":29131,"2025/08":28371,"2025/09":31134},gp:{"2025/01":-125276,"2025/02":122602,"2025/03":600220,"2025/04":68566,"2025/05":325332,"2025/06":333278,"2025/07":40723,"2025/08":-77498,"2025/09":36132}}
+};
+
+function getPrevYM(ym){
+  const p=ym.split('/');
+  return (parseInt(p[0])-1)+'/'+p[1];
+}
+function getPrevVal(store,ym,field){
+  const s=PREV_YEAR_DATA[store];
+  if(!s)return null;
+  const pym=getPrevYM(ym);
+  const d=s[field||'sales'];
+  if(!d)return null;
+  const v=d[pym];
+  return v!=null?v:null;
+}
+// backward compat
+function getPrevSales(store,ym){return getPrevVal(store,ym,'sales');}
+
+
+function svgGroupedBar(W,H,pad,series,labels){
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b,n=labels.length,ns=series.length;
+  const allV=series.flatMap(s=>s.data.filter(v=>v!=null&&v>0));
+  const mx=Math.max(...allV,1);
+  const toY=v=>pad.t+ph-v/mx*ph;
+  let g='',bars='',xlbl='';
+  [0,0.5,1].forEach(f=>{
+    const v=mx*f,y=toY(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    const l=Math.abs(v)>=10000?(v/10000).toFixed(0)+'万':Math.round(v).toString();
+    g+=`<text x="${pad.l-3}" y="${y+3.5}" text-anchor="end" font-size="8" fill="#94a3b8">${l}</text>`;
+  });
+  const groupW=pw/n, barW=groupW*0.38;
+  labels.forEach((lbl,i)=>{
+    const gx=pad.l+i*groupW;
+    series.forEach((s,si)=>{
+      const v=s.data[i];
+      if(v==null||v<=0)return;
+      const bx=gx+groupW*0.1+si*(barW+2);
+      const y=toY(v),h=Math.abs(toY(0)-y)||1;
+      bars+=`<rect x="${bx}" y="${y}" width="${barW}" height="${h}" fill="${s.color}" rx="2" opacity=".88"/>`;
+    });
+    xlbl+=`<text x="${gx+groupW/2}" y="${H-1}" text-anchor="middle" font-size="7.5" fill="#94a3b8">${lbl}</text>`;
+  });
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${g}${bars}${xlbl}</svg>`;
+}
+
+
+function svgLine(W,H,pad,series,labels){
+  // series: [{label, color, data:[v|null,...], dash}]
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b, n=labels.length;
+  const allV=series.flatMap(s=>s.data.filter(v=>v!=null&&isFinite(v)));
+  if(!allV.length)return '<svg width="100%" viewBox="0 0 '+W+' '+H+'"><text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-size="11">データなし</text></svg>';
+  const mn=Math.min(...allV), mx=Math.max(...allV,mn+1);
+  const pad_y=(mx-mn)*0.12;
+  const lo=mn-pad_y, hi=mx+pad_y||1;
+  const toX=i=>pad.l+i/(n-1)*pw;
+  const toY=v=>pad.t+ph-(v-lo)/(hi-lo)*ph;
+  let g='',shapes='',xlbl='';
+
+  // Zero line if range crosses 0
+  if(lo<0&&hi>0){
+    const zy=toY(0);
+    g+=`<line x1="${pad.l}" y1="${zy}" x2="${pad.l+pw}" y2="${zy}" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  }
+
+  // Grid lines (3 levels)
+  [0,0.5,1].forEach(f=>{
+    const v=lo+f*(hi-lo), y=toY(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${pad.l+pw}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    const lbl=Math.abs(v)>=10000?(v/10000).toFixed(1)+'\u4e07':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':Math.round(v)+'';
+    g+=`<text x="${pad.l-3}" y="${y+3.5}" text-anchor="end" font-size="8" fill="#94a3b8">${lbl}</text>`;
+  });
+
+  // X labels
+  labels.forEach((lbl,i)=>{
+    if(i%2===0||n<=8)
+      xlbl+=`<text x="${toX(i)}" y="${H-1}" text-anchor="middle" font-size="7.5" fill="#94a3b8">${lbl}</text>`;
+  });
+
+  // Lines + circles
+  series.forEach(s=>{
+    // Build segments (skip null gaps)
+    let seg=[], pts=[];
+    s.data.forEach((v,i)=>{
+      if(v!=null&&isFinite(v)){pts.push([toX(i),toY(v)]);}
+      else if(pts.length){seg.push(pts);pts=[];}
+    });
+    if(pts.length)seg.push(pts);
+    seg.forEach(ps=>{
+      const d=ps.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+      shapes+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.width||2}" stroke-linejoin="round" ${s.dash?'stroke-dasharray="'+s.dash+'"':''} opacity="${s.opacity||1}"/>`;
+    });
+    s.data.forEach((v,i)=>{
+      if(v==null||!isFinite(v))return;
+      shapes+=`<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="${s.dot||3}" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`;
+    });
+  });
+
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}">${g}${shapes}${xlbl}</svg>`;
+}
+
+
+function pageGmailLog(){
+  // データがない場合はサンプルデータで表示
+  const isMock = !gmailData||gmailData.length===0;
+  const displayData = isMock ? [
+    {receivedAt:'2026/09/17 09:12:00',site:'スペースマーケット',space:'OASIS天王寺',dateTime:'2026年09月20日 14:00〜17:00',amount:8400},
+    {receivedAt:'2026/09/17 11:34:00',site:'インスタベース',space:'ECHOES新大阪',dateTime:'2026年09月19日 10:00〜12:00',amount:5500},
+    {receivedAt:'2026/09/16 15:20:00',site:'カシカシ',space:'OASIS京都',dateTime:'2026年09月21日 13:00〜16:00',amount:0},
+    {receivedAt:'2026/09/16 10:05:00',site:'スペースマーケット',space:'SHEERS天王寺',dateTime:'2026年09月18日 18:00〜21:00',amount:12600},
+    {receivedAt:'2026/09/15 14:45:00',site:'インスタベース',space:'OASIS京都東',dateTime:'2026年09月22日 09:00〜11:00',amount:3960},
+    {receivedAt:'2026/09/15 08:30:00',site:'Yoyappin',space:'ECHOES扇町',dateTime:'2026年09月20日 15:00〜19:00',amount:15400},
+    {receivedAt:'2026/09/14 16:10:00',site:'スペースマーケット',space:'OASIS天王寺',dateTime:'2026年09月19日 19:00〜22:00',amount:9240},
+    {receivedAt:'2026/09/14 11:22:00',site:'インスタベース',space:'ECHOES京都中央',dateTime:'2026年09月21日 10:00〜14:00',amount:7920},
+    {receivedAt:'2026/09/13 09:55:00',site:'カシカシ',space:'OASIS京都❷',dateTime:'2026年09月20日 13:00〜15:00',amount:0},
+    {receivedAt:'2026/09/13 08:10:00',site:'スペースマーケット',space:'SHEERS京都七条',dateTime:'2026年09月18日 14:00〜17:00',amount:6300},
+  ] : gmailData;
+
+  // 予約時間を分に変換（"14:00〜17:00" → 180分）
+  function parseDuration(dateTime){
+    const m=String(dateTime||'').match(/(\d{1,2}):(\d{2})[〜~\-～](\d{1,2}):(\d{2})/);
+    if(!m)return null;
+    const start=parseInt(m[1])*60+parseInt(m[2]);
+    let end=parseInt(m[3])*60+parseInt(m[4]);
+    if(end<start)end+=24*60;
+    return end-start;
+  }
+
+  function getDateStr(raw){
+    const s=String(raw||'');
+    // "2026/10/05 14:23" or "2026-10-05 14:23"
+    const m1=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if(m1)return m1[1]+'/'+m1[2].padStart(2,'0')+'/'+m1[3].padStart(2,'0');
+    // "2026年10月05日"
+    const m2=s.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+    if(m2)return m2[1]+'/'+m2[2].padStart(2,'0')+'/'+m2[3].padStart(2,'0');
+    return s.split(' ')[0].replace(/-/g,'/');
+  }
+
+  const today=new Date();
+  const todayStr=today.getFullYear()+'/'+String(today.getMonth()+1).padStart(2,'0')+'/'+String(today.getDate()).padStart(2,'0');
+  const thisMonthStr=today.getFullYear()+'/'+String(today.getMonth()+1).padStart(2,'0');
+  const _ws=new Date(today);_ws.setDate(today.getDate()-today.getDay()+1);
+  const thisWeekStartStr=_ws.getFullYear()+'/'+String(_ws.getMonth()+1).padStart(2,'0')+'/'+String(_ws.getDate()).padStart(2,'0');
+
+  // 集計
+  const pfSales={},pfCount={};
+  const spaceSales={},spaceCount={};
+  const purposeCount={};
+  const durationBuckets={'〜1時間':0,'1〜2時間':0,'2〜3時間':0,'3〜5時間':0,'5時間以上':0};
+  let todaySales=0,todayCount=0,weekSales=0,weekCount=0,monthSales=0,monthCount=0;
+
+  displayData.forEach(row=>{
+    const d=getDateStr(row.receivedAt);
+    const amt=row.amount||0;
+    const site=row.site||'その他';
+    const space=row.space||'不明';
+    const purpose=row.purpose||'不明';
+
+    if(d===todayStr){todaySales+=amt;todayCount++;}
+    if(d>=thisWeekStartStr&&d<=todayStr){weekSales+=amt;weekCount++;}
+    if(d.startsWith(thisMonthStr)){monthSales+=amt;monthCount++;}
+
+    // 媒体別
+    if(!pfSales[site])pfSales[site]=0;
+    pfSales[site]+=amt;
+    pfCount[site]=(pfCount[site]||0)+1;
+
+    // スペース別
+    const spaceName=STORES.find(s=>space.includes(s))||space;
+    if(!spaceSales[spaceName])spaceSales[spaceName]=0;
+    spaceSales[spaceName]+=amt;
+    spaceCount[spaceName]=(spaceCount[spaceName]||0)+1;
+
+    // 用途別
+    purposeCount[purpose]=(purposeCount[purpose]||0)+1;
+
+    // 予約時間別
+    const dur=parseDuration(row.dateTime);
+    if(dur!=null){
+      if(dur<=60)durationBuckets['〜1時間']++;
+      else if(dur<=120)durationBuckets['1〜2時間']++;
+      else if(dur<=180)durationBuckets['2〜3時間']++;
+      else if(dur<=300)durationBuckets['3〜5時間']++;
+      else durationBuckets['5時間以上']++;
+    }
+  });
+
+  // SVGバーヘルパー
+  function miniBar(data,colors){
+    const maxV=Math.max(...Object.values(data),1);
+    const entries=Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const W=260,BH=20,GAP=6,PAD=80;
+    const H=entries.length*(BH+GAP);
+    let svg='';
+    entries.forEach(([k,v],i)=>{
+      const bw=Math.max(2,(v/maxV)*(W-PAD));
+      const y=i*(BH+GAP);
+      const c=colors&&colors[k]?colors[k]:'#3B82F6';
+      svg+=`<text x="0" y="${y+14}" font-size="10" fill="#475569">${k.slice(0,10)}</text>`;
+      svg+=`<rect x="${PAD}" y="${y+2}" width="${bw}" height="${BH-4}" fill="${c}" rx="3" opacity=".8"/>`;
+      svg+=`<text x="${PAD+bw+4}" y="${y+14}" font-size="10" fill="#64748b">${v}</text>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%">${svg}</svg>`;
+  }
+
+  const PF_COLORS={'\u30a4\u30f3\u30b9\u30bf\u30d9\u30fc\u30b9':'#8B5CF6','\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8':'#3B82F6','\u30ab\u30b7\u30ab\u30b7':'#F59E0B','Yoyappin':'#10B981','\u30b9\u30da\u306a\u3073':'#F97316'};
+
+  // 予約時間グラフ
+  const durMax=Math.max(...Object.values(durationBuckets),1);
+  const durBars=Object.entries(durationBuckets).map(([k,v])=>{
+    const w=Math.round(v/durMax*100);
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="font-size:11px;color:#475569;width:60px;text-align:right;flex-shrink:0">${k}</div>
+      <div style="flex:1;background:#f1f5f9;border-radius:4px;height:18px">
+        <div style="width:${w}%;height:18px;background:#3B82F6;border-radius:4px;transition:width .3s"></div>
+      </div>
+      <div style="font-size:11px;color:#64748b;width:30px">${v}件</div>
+    </div>`;
+  }).join('');
+
+  // 店舗別予約時間分布
+  const DUR_KEYS=['〜1h','1【2h','2【3h','3【5h','5h+'];
+  const DUR_COLORS=['#3B82F6','#10B981','#8B5CF6','#F59E0B','#EF4444'];
+  function getDurKey(dt){
+    const dur=parseDuration(dt);
+    if(dur==null)return null;
+    if(dur<=60)return '〜1h';
+    if(dur<=120)return '1【2h';
+    if(dur<=180)return '2【3h';
+    if(dur<=300)return '3【5h';
+    return '5h+';
+  }
+  const now2=new Date();
+  const _cutoffDate=(days)=>{const d=new Date(now2);d.setDate(d.getDate()-days);return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');};
+  const now2Str=now2.getFullYear()+'/'+String(now2.getMonth()+1).padStart(2,'0')+'/'+String(now2.getDate()).padStart(2,'0');
+  const periodCutoffStr={
+    today:now2Str,
+    week: _cutoffDate(7),
+    month:_cutoffDate(30),
+    all:  '2000/01/01',
+  }[gmailPeriod]||'2000/01/01';
+  const periodFiltered=displayData.filter(row=>{
+    const d=getDateStr(row.receivedAt);
+    return d>=periodCutoffStr;
+  });
+  const periodTabs=[['today','今日'],['week','1週間'],['month','1ヶ月'],['all','全期間']].map(([v,l])=>
+    `<button class="gp-tab" data-v="${v}" style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;background:${gmailPeriod===v?'#0f3460':'#f1f5f9'};color:${gmailPeriod===v?'#fff':'#64748b'}">${l}</button>`
+  ).join('');
+  const storeCards=STORES.map(st=>{
+    const rows=periodFiltered.filter(r=>{
+      const sp=r.space||'';
+      return sp.includes(st)||st.includes(sp.split('　')[0]);
+    });
+    const durCount={};DUR_KEYS.forEach(k=>durCount[k]=0);
+    rows.forEach(r=>{const k=getDurKey(r.dateTime);if(k)durCount[k]++;});
+    const total=rows.length;
+    const totalAmt=rows.reduce((a,r)=>a+(r.amount||0),0);
+    const maxD=Math.max(...Object.values(durCount),1);
+    const bars=DUR_KEYS.map((k,i)=>{
+      const v=durCount[k],w=Math.round(v/maxD*100);
+      return `<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+        <div style="font-size:9px;color:#64748b;width:28px;text-align:right;flex-shrink:0">${k}</div>
+        <div style="flex:1;background:#f1f5f9;border-radius:3px;height:14px">
+          <div style="width:${w}%;height:14px;background:${DUR_COLORS[i]};border-radius:3px"></div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:${v>0?'#0f3460':'#e2e8f0'};width:18px">${v||''}</div>
+      </div>`;
+    }).join('');
+    return `<div class="chart-card" style="border-top:3px solid ${COLORS[st]||'#94a3b8'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:#0f3460">${st}</div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:800;color:${total>0?(COLORS[st]||'#0f3460'):'#94a3b8'}">${total}<span style="font-size:11px">件</span></div>
+          ${totalAmt>0?`<div style="font-size:10px;color:#64748b">${fmtK(totalAmt)}</div>`:''}
+        </div>
+      </div>
+      ${total>0?bars:`<div style="font-size:10px;color:#cbd5e1;text-align:center;padding:10px 0">データなし</div>`}
+    </div>`;
+  }).join('');
+
+  // 予約一覧
+  const recent=[...displayData].reverse().slice(0,100);
+  const sitePF={'\u30a4\u30f3\u30b9\u30bf\u30d9\u30fc\u30b9':'#8B5CF6','\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8':'#3B82F6','\u30ab\u30b7\u30ab\u30b7':'#F59E0B','Yoyappin':'#10B981'};
+  const listRows=recent.map(row=>{
+    const d=getDateStr(row.receivedAt);
+    const amt=row.amount||0;
+    const isToday=d===todayStr;
+    const c=Object.entries(sitePF).find(([k])=>row.site&&row.site.includes(k.slice(0,4)));
+    const color=c?c[1]:'#94a3b8';
+    const dur=parseDuration(row.dateTime);
+    return `<tr style="${isToday?'background:#eff6ff;':''}border-bottom:1px solid #f1f5f9">
+      <td style="padding:7px 10px;font-size:11px;white-space:nowrap;color:${isToday?'#3b82f6':'#64748b'}">${d}${isToday?' <span style="font-size:9px;background:#3b82f6;color:#fff;padding:1px 4px;border-radius:3px">\u4eca\u65e5</span>':''}</td>
+      <td style="padding:7px 6px"><span style="font-size:10px;padding:2px 6px;border-radius:4px;background:${color}22;color:${color};font-weight:700;white-space:nowrap">${row.site||'—'}</span></td>
+      <td style="padding:7px 6px;font-size:11px;color:#0f3460;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${row.space||'—'}</td>
+      <td style="padding:7px 6px;font-size:10px;color:#64748b;white-space:nowrap">${row.dateTime||'—'}</td>
+      <td style="padding:7px 6px;font-size:11px;text-align:center;color:#64748b">${dur!=null?dur/60+'h':'—'}</td>
+      <td style="padding:7px 8px;text-align:right;font-size:12px;font-weight:700;color:${amt>0?'#0f3460':'#94a3b8'}">${amt>0?fmtK(amt):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    ${isMock?'<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:8px 14px;font-size:11px;color:#92400e;margin-bottom:10px">📋 サンプルデータで表示中。「↻ 最新データを取得」を押すと実データに切り替わります。</div>':''}
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button onclick="loadFromGoogleSheets(false);setTimeout(()=>render(),3000)" style="padding:8px 18px;background:#0f3460;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">↻ 最新データを取得</button>
+      <div id="gs-status" style="font-size:11px;color:#94a3b8;margin-left:10px;align-self:center"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px">
+      <div class="card" style="padding:14px 18px;border-left:4px solid #3B82F6">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u65e5\u306e\u4e88\u7d04</div>
+        <div style="font-size:24px;font-weight:800;color:#3B82F6">${todayCount}\u4ef6</div>
+        <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${todaySales>0?fmtK(todaySales):'¥0'}</div>
+      </div>
+      <div class="card" style="padding:14px 18px;border-left:4px solid #10B981">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u9031\u306e\u4e88\u7d04</div>
+        <div style="font-size:24px;font-weight:800;color:#10B981">${weekCount}\u4ef6</div>
+        <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${weekSales>0?fmtK(weekSales):'¥0'}</div>
+      </div>
+      <div class="card" style="padding:14px 18px;border-left:4px solid #8B5CF6">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u6708\u306e\u4e88\u7d04\uff08\u78ba\u5b9a\u65e5\u30d9\u30fc\u30b9\uff09</div>
+        <div style="font-size:24px;font-weight:800;color:#8B5CF6">${monthCount}\u4ef6</div>
+        <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${monthSales>0?fmtK(monthSales):'¥0'}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#0f3460;margin-bottom:10px">\ud83d\udcca \u5a92\u4f53\u5225 \u4e88\u7d04\u4ef6\u6570</div>
+        ${miniBar(pfCount,PF_COLORS)}
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#0f3460;margin-bottom:10px">\ud83c\udfe0 \u30b9\u30da\u30fc\u30b9\u5225 \u4e88\u7d04\u4ef6\u6570</div>
+        ${miniBar(spaceCount)}
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#0f3460;margin-bottom:10px">\u23f0 \u4e88\u7d04\u6642\u9593\u5e2f\u5206\u5e03</div>
+        ${durBars}
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="sec-h" style="margin:0">&#x1f3e0; &#x5e97;&#x8217;&#x5225; &#x4e88;&#x7d04;&#x6642;&#x9593;&#x5206;&#x5e03;</div>
+      <div style="display:flex;gap:4px">${periodTabs}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">${storeCards}</div>
+
+
+    <div class="sec-h">\u4e88\u7d04\u4e00\u89a7\uff08\u76f4\u8fd150\u4ef6\uff09</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="tbl-wrap">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#0f3460;color:#fff">
+            <th style="padding:9px 10px;text-align:left;font-size:11px">\u53d7\u4fe1\u65e5</th>
+            <th style="padding:9px 6px;text-align:left;font-size:11px">\u5a92\u4f53</th>
+            <th style="padding:9px 6px;text-align:left;font-size:11px">\u30b9\u30da\u30fc\u30b9</th>
+            <th style="padding:9px 6px;text-align:left;font-size:11px">\u5229\u7528\u65e5\u6642</th>
+            <th style="padding:9px 6px;text-align:center;font-size:11px">\u6642\u9593</th>
+            <th style="padding:9px 10px;text-align:right;font-size:11px">\u91d1\u984d</th>
+          </tr></thead>
+          <tbody>${listRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+
+
+function pageYoY(){
+  const li=MONTHS.indexOf(selMonth);
+  // グラフは現在月まで過去12ヶ月のみ
+  const gStart=Math.max(0,li-11),gEnd=li+1;
+  const gMonths=MONTHS.slice(gStart,gEnd);
+  const gIdxs=gMonths.map(m=>MONTHS.indexOf(m));
+  const labels=gMonths.map(m=>m.slice(5)+'月');
+
+  // 指標定義
+  const METRICS=[
+    {k:'sales', l:'売上', fmt:fmtK, pctFmt:false},
+    {k:'gp',    l:'粗利', fmt:fmtK, pctFmt:false},
+    {k:'fixed', l:'総コスト', fmt:fmtK, pctFmt:false},
+    {k:'margin',l:'粗利率', fmt:v=>Math.round(v)+'%', pctFmt:true},
+  ];
+  const met=METRICS.find(m=>m.k===yoyMetric)||METRICS[0];
+
+  function getCurVal(s,mi){
+    if(met.k==='sales')return DATA[s][mi].sales;
+    if(met.k==='gp')return DATA[s][mi].gp;
+    if(met.k==='fixed')return DATA[s][mi].fixed+(DATA[s][mi].variable||0);
+    if(met.k==='margin')return DATA[s][mi].margin||0;
+    return 0;
+  }
+  function getPrevValForMetric(s,m){
+    if(met.k==='sales')return getPrevVal(s,m,'sales');
+    if(met.k==='gp')return getPrevVal(s,m,'gp');
+    if(met.k==='fixed'){
+      const ps=getPrevVal(s,m,'sales'), pg=getPrevVal(s,m,'gp');
+      return (ps&&pg!=null)?ps-pg:null;
+    }
+    if(met.k==='margin'){
+      const ps=getPrevVal(s,m,'sales'), pg=getPrevVal(s,m,'gp');
+      return (ps&&ps>0)?Math.round(pg/ps*100):null;
+    }
+    return null;
+  }
+
+  // 全店合計データ（過去12ヶ月分）
+  const totCurData=gIdxs.map((mi)=>{
+    if(met.k==='margin'){
+      const ts=STORES.reduce((a,s)=>a+DATA[s][mi].sales,0);
+      const tg=STORES.reduce((a,s)=>a+DATA[s][mi].gp,0);
+      return ts>0?Math.round(tg/ts*100):0;
+    }
+    return STORES.reduce((a,s)=>a+getCurVal(s,mi),0);
+  });
+  const totPrevData=gMonths.map((m)=>{
+    if(met.k==='margin'){
+      const ts=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'sales');return a+(p||0);},0);
+      const tg=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'gp');return a+(p||0);},0);
+      return ts>0?Math.round(tg/ts*100):null;
+    }
+    const t=STORES.reduce((a,s)=>{const p=getPrevValForMetric(s,m);return a+(p||0);},0);
+    return t!==0?t:null;
+  });
+
+  // 指標タブ
+  const tabs=METRICS.map(m=>`<button class="yoy-tab${yoyMetric===m.k?' active':''}" data-metric="${m.k}"
+    style="padding:6px 16px;border-radius:7px;font-size:12px;font-weight:700;border:none;cursor:pointer;
+    background:${yoyMetric===m.k?'#0f3460':'#f1f5f9'};color:${yoyMetric===m.k?'#fff':'#64748b'}">${m.l}</button>`).join('');
+
+  // 全店合計グラフ
+  const totSeries=[
+    {label:'今年',color:'#3B82F6',data:totCurData,width:2.5},
+    {label:'前年',color:'#94A3B8',data:totPrevData,width:2,dash:'5,4',opacity:0.8}
+  ];
+
+  // 店舗別カード（折れ線）
+  const storeCards=STORES.map(s=>{
+    const cur=gIdxs.map((mi)=>getCurVal(s,mi));
+    const prev=gMonths.map(m=>getPrevValForMetric(s,m));
+    const hasPrev=prev.some(v=>v!=null);
+    const series=[
+      {label:'今年',color:COLORS[s],data:cur,width:2.5,dot:3},
+      {label:'前年',color:'#94A3B8',data:prev,width:2,dash:'5,4',dot:2.5,opacity:0.8}
+    ];
+    const curV=getCurVal(s,li);
+    const prevV=getPrevValForMetric(s,selMonth);
+    const rate=prevV!=null&&prevV!==0?Math.round((curV-prevV)/Math.abs(prevV)*100):null;
+    const rateStr=rate!=null?(rate>=0?'\u2191 +'+rate+'%':'\u2193 '+rate+'%'):'前年データなし';
+    const rateColor=rate==null?'#94a3b8':rate>=0?'#10b981':'#ef4444';
+    return `<div class="chart-card yoy-store-card" data-store="${s}"
+      style="border-top:3px solid ${COLORS[s]};cursor:pointer">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-weight:700;font-size:12px;color:#0f3460">${s}</div>
+        <div style="font-size:11px;font-weight:700;color:${rateColor}">${rateStr}</div>
+      </div>
+      <div style="font-size:10px;color:#64748b;margin-bottom:3px">
+        今年 ${met.fmt(curV)}${prevV!=null?' / 前年 '+met.fmt(prevV):''}
+      </div>
+      ${svgLine(280,90,{l:34,r:6,t:6,b:14},series,labels)}
+      ${!hasPrev?'<div style="font-size:9px;color:#94a3b8;text-align:center">前年データなし</div>':''}
+      <div style="font-size:9px;color:#14b8a6;text-align:right;margin-top:2px">\u25bc 詳細を見る</div>
+    </div>`;
+  }).join('');
+
+  // モーダル
+  let modal='';
+  if(selYoYStore){
+    const s=selYoYStore;
+    const mCur=MONTHS.map((_,mi)=>getCurVal(s,mi));
+    const mPrev=MONTHS.map(m=>getPrevValForMetric(s,m));
+    const mSeries=[
+      {label:'今年',color:COLORS[s],data:mCur,width:3,dot:4},
+      {label:'前年',color:'#94A3B8',data:mPrev,width:2.5,dash:'5,4',dot:3.5,opacity:0.85}
+    ];
+    const tableRows=MONTHS.map((m,mi)=>{
+      const cur=mCur[mi], prev=mPrev[mi];
+      const diff=prev!=null?cur-prev:null;
+      const rate=prev!=null&&prev!==0?Math.round((cur-prev)/Math.abs(prev)*100):null;
+      const hl=mi===li?'background:#eff6ff;':'';
+      return '<tr style="'+hl+'border-bottom:1px solid #f1f5f9">'+
+        '<td style="text-align:left;padding:8px 12px;font-weight:'+(mi===li?700:500)+';color:#0f3460">'+
+          m+(mi===li?' <span style="font-size:9px;color:#3b82f6">\u2190\u4eca\u6708</span>':'')+'</td>'+
+        '<td style="padding:8px;text-align:right;font-weight:700;color:'+COLORS[s]+'">'+met.fmt(cur)+'</td>'+
+        '<td style="padding:8px;text-align:right;color:#94a3b8">'+(prev!=null?met.fmt(prev):'-')+'</td>'+
+        '<td style="padding:8px;text-align:right;font-weight:700;color:'+(diff==null?'#94a3b8':diff>=0?'#10b981':'#ef4444')+'">'+
+          (diff!=null?(diff>=0?'+':'')+met.fmt(diff):'-')+'</td>'+
+        '<td style="padding:8px;text-align:right;font-weight:700;color:'+(rate==null?'#94a3b8':rate>=0?'#10b981':'#ef4444')+'">'+
+          (rate!=null?(rate>=0?'+'+rate+'%':rate+'%'):'-')+'</td>'+
+        '</tr>';
+    }).join('');
+
+    modal=`<div class="yoy-modal-overlay" id="yoy-modal-overlay">
+      <div class="yoy-modal">
+        <div class="yoy-modal-header" style="border-left:4px solid ${COLORS[s]}">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:11px;height:11px;border-radius:50%;background:${COLORS[s]};flex-shrink:0"></span>
+            <span style="font-size:14px;font-weight:700;color:#0f3460">${s} — ${met.l} 前年比較</span>
+          </div>
+          <button class="yoy-close-btn" style="padding:6px 14px;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;font-size:12px">✕ 閉じる</button>
+        </div>
+        <div class="yoy-modal-body">
+          <div style="font-size:10px;color:#64748b;margin-bottom:8px;display:flex;gap:12px">
+            <span><span style="display:inline-block;width:22px;height:2.5px;background:${COLORS[s]};border-radius:2px;margin-right:4px;vertical-align:middle"></span>今年</span>
+            <span><span style="display:inline-block;width:22px;height:2px;background:#94A3B8;border-radius:2px;border-top:2px dashed #94A3B8;vertical-align:middle;margin-right:4px"></span>前年</span>
+          </div>
+          <div style="width:100%">${svgLine(800,220,{l:52,r:12,t:12,b:16},mSeries,labels)}</div>
+          <div style="margin-top:16px;overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="background:#f8fafc">
+                <th style="text-align:left;padding:9px 12px;color:#475569;font-size:11px;border-bottom:1.5px solid #e2e8f0">月</th>
+                <th style="padding:9px 8px;color:${COLORS[s]};font-size:11px;border-bottom:1.5px solid #e2e8f0">今年</th>
+                <th style="padding:9px 8px;color:#94a3b8;font-size:11px;border-bottom:1.5px solid #e2e8f0">前年</th>
+                <th style="padding:9px 8px;font-size:11px;border-bottom:1.5px solid #e2e8f0">差額</th>
+                <th style="padding:9px 8px;font-size:11px;border-bottom:1.5px solid #e2e8f0">前年比</th>
+              </tr></thead>
+              <tbody>${tableRows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-h" style="margin:0">全店 + 店舗別 前年比較</div>
+      <div style="display:flex;gap:6px">${tabs}</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;color:#64748b;margin-bottom:6px;display:flex;gap:14px">
+        <span><span style="display:inline-block;width:20px;height:2.5px;background:#3B82F6;border-radius:2px;margin-right:4px;vertical-align:middle"></span>今年</span>
+        <span><span style="display:inline-block;width:20px;height:2px;border-top:2px dashed #94A3B8;margin-right:4px;vertical-align:middle"></span>前年</span>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:#475569;margin-bottom:6px">全店合計 ${met.l}</div>
+      ${svgLine(700,190,{l:52,r:10,t:8,b:14},totSeries,labels)}
+    </div>
+    <div class="sec-h" style="margin-top:14px">月次サマリー（全店合計）</div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
+      <div class="tbl-wrap">
+        <table style="font-size:11px">
+          <thead>
+            <tr style="background:#0f3460;color:#fff">
+              <th style="text-align:left;padding:7px 12px;border-right:1px solid #1e4a7a" rowspan="2">月</th>
+              <th style="padding:5px 8px;border-right:1px solid #1e4a7a;text-align:center" colspan="3">売上</th>
+              <th style="padding:5px 8px;border-right:1px solid #1e4a7a;text-align:center" colspan="3">総コスト（固定+変動）</th>
+              <th style="padding:5px 8px;text-align:center" colspan="3">粗利</th>
+            </tr>
+            <tr style="background:#1e4a7a;color:#93c5fd;font-size:10px">
+              <th style="padding:5px 8px;text-align:right">今年</th>
+              <th style="padding:5px 8px;text-align:right">前年</th>
+              <th style="padding:5px 8px;text-align:right;border-right:1px solid #2d6a9a">前年比</th>
+              <th style="padding:5px 8px;text-align:right">今年</th>
+              <th style="padding:5px 8px;text-align:right;border-right:1px solid #2d6a9a">前年比</th>
+              <th style="padding:5px 8px;text-align:right">今年</th>
+              <th style="padding:5px 8px;text-align:right">前年</th>
+              <th style="padding:5px 8px;text-align:right">前年比</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${MONTHS.map((m,mi)=>{
+              const curS=STORES.reduce((a,s)=>a+DATA[s][mi].sales,0);
+              const curF=STORES.reduce((a,s)=>a+DATA[s][mi].fixed,0);
+              const curG=STORES.reduce((a,s)=>a+DATA[s][mi].gp,0);
+              const prevS=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'sales');return a+(p||0);},0);
+              const prevG=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'gp');return a+(p||0);},0);
+              const rateS=prevS>0?Math.round((curS-prevS)/prevS*100):null;
+              const rateG=prevG!==0?Math.round((curG-prevG)/Math.abs(prevG)*100):null;
+              const hasPrev=prevS>0;
+              const isNow=mi===li;
+              const rowBg=isNow?'background:#eff6ff;':'';
+              const fw=isNow?'font-weight:700;':'';
+              return '<tr style="'+rowBg+fw+'border-bottom:1px solid #f1f5f9">'+
+                '<td style="text-align:left;padding:7px 12px;color:#0f3460;white-space:nowrap;border-right:1px solid #f1f5f9">'+m+(isNow?' <span style="font-size:9px;color:#3b82f6">←</span>':'')+'</td>'+
+                // 売上
+                '<td style="padding:7px 8px;text-align:right;color:#3B82F6;font-weight:700">'+fmtK(curS)+'</td>'+
+                '<td style="padding:7px 8px;text-align:right;color:#94a3b8">'+(hasPrev?fmtK(prevS):'-')+'</td>'+
+                '<td style="padding:7px 8px;text-align:right;font-weight:700;border-right:1px solid #f1f5f9;color:'+(rateS==null?'#94a3b8':rateS>=0?'#10b981':'#ef4444')+'">'+(rateS!=null?(rateS>=0?'+'+rateS+'%':rateS+'%'):'-')+'</td>'+
+                // 総コスト（固定費+変動費）
+                (()=>{
+                  const curV=STORES.reduce((a,s)=>a+DATA[s][mi].variable,0);
+                  const curTotal=curF+curV;
+                  // 前年総コスト = 前年売上 - 前年粗利（利益）
+                  const prevS2=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'sales');return a+(p||0);},0);
+                  const prevG2=STORES.reduce((a,s)=>{const p=getPrevVal(s,m,'gp');return a+(p||0);},0);
+                  const prevTotal=prevS2>0?prevS2-prevG2:0;
+                  const rateT=prevTotal>0?Math.round((curTotal-prevTotal)/prevTotal*100):null;
+                  return '<td style="padding:7px 8px;text-align:right;color:#64748b;font-weight:700">'+fmtK(curTotal)+'</td>'+
+                    '<td style="padding:7px 8px;text-align:right;color:#94a3b8">'+(prevTotal>0?fmtK(prevTotal):'-')+'</td>'+
+                    '<td style="padding:7px 8px;text-align:right;font-weight:700;border-right:1px solid #f1f5f9;color:'+(rateT==null?'#94a3b8':rateT>=0?'#ef4444':'#10b981')+'">'+(rateT!=null?(rateT>=0?'+'+rateT+'%':rateT+'%'):'-')+'</td>';
+                })() +
+                // 粗利
+                '<td style="padding:7px 8px;text-align:right;font-weight:700;color:'+(curG>=0?'#10b981':'#ef4444')+'">'+fmtK(curG)+'</td>'+
+                '<td style="padding:7px 8px;text-align:right;color:#94a3b8">'+(hasPrev?fmtK(prevG):'-')+'</td>'+
+                '<td style="padding:7px 8px;text-align:right;font-weight:700;color:'+(rateG==null?'#94a3b8':rateG>=0?'#10b981':'#ef4444')+'">'+(rateG!=null?(rateG>=0?'+'+rateG+'%':rateG+'%'):'-')+'</td>'+
+                '</tr>';
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      ${storeCards}
+    </div>
+    ${modal}
+  `;
+}
+
+
+
+
+
+
+function getWeekRanges(year, month){
+  const lastDay = new Date(year, month, 0).getDate();
+  return [
+    [1,7,   '第1週（1〜7日）'],
+    [8,14,  '第2週（8〜14日）'],
+    [15,21, '第3週（15〜21日）'],
+    [22,lastDay,'第4週（22〜'+lastDay+'日）'],
+  ];
+}
+
+function pageWeekly(){
+  const [year,month]=selMonth.split('/').map(Number);
+  const weeks=getWeekRanges(year,month);
+
+  const MONTH_TARGET=2000000, WEEK_TARGET=500000;
+  const PF_TARGETS={'\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8':1200000,'\u30a4\u30f3\u30b9\u30bf\u30d9\u30fc\u30b9':800000};
+  const PLATFORMS_W=['\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8','\u30a4\u30f3\u30b9\u30bf\u30d9\u30fc\u30b9','\u30ab\u30b7\u30ab\u30b7','Yoyappin'];
+  const PF_SHORT={'\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8':'\u30b9\u30da\u30de','\u30a4\u30f3\u30b9\u30bf\u30d9\u30fc\u30b9':'\u30a4\u30f3\u30b9\u30bf','\u30ab\u30b7\u30ab\u30b7':'\u30ab\u30b7','\u30b9\u30da\u30fc\u30b9\u30de\u30fc\u30b1\u30c3\u30c8':'\u30b9\u30da\u30de','Yoyappin':'\u30e8\u30e4\u30c3\u30d4\u30f3'};
+
+  // ブランドグループ（区切り線用）
+  const BRAND_GROUPS=[
+    {name:'ECHOES',color:'#3B82F6',stores:STORES.filter(s=>s.includes('ECHOES'))},
+    {name:'OASIS', color:'#10B981',stores:STORES.filter(s=>s.includes('OASIS'))},
+    {name:'SHEERS',color:'#8B5CF6',stores:STORES.filter(s=>s.includes('SHEERS'))},
+  ];
+
+  // データソース選択（Gmailログ優先、なければ統合予約DB）
+  // Gmailログは「受信日時」＝予約が入った日で集計（リアルタイム性が高い）
+  // 統合予約DBは「利用日」で集計
+  const useGmail = gmailData && gmailData.length > 0;
+  const dataSource = useGmail ? 'gmail' : 'csv';
+
+  // 店舗名マッピング（GmailログのスペースDBとSTORES名の対応）
+  const SPACE_TO_STORE={};
+  STORES.forEach(s=>SPACE_TO_STORE[s]=s);
+
+  // 週×集計
+  const weekData=weeks.map(([s,e,label],wi)=>{
+    const storeSales={},pfSales={},pfCount={};
+    STORES.forEach(st=>storeSales[st]=0);
+    PLATFORMS_W.forEach(p=>{pfSales[p]=0;pfCount[p]=0;});
+    let total=0,totalCount=0;
+
+    if(useGmail){
+      // Gmailログから「予約が入った日」で集計
+      gmailData.forEach(row=>{
+        if(!row.receivedAt) return;
+        // 受信日時: "2026/09/17 14:30:00" 形式
+        const dateStr=String(row.receivedAt);
+        const parts=dateStr.replace(/[-]/g,'/').split(/[\s\/]/);
+        if(parts.length<3) return;
+        const [ry,rm,rd]=[parseInt(parts[0]),parseInt(parts[1]),parseInt(parts[2])];
+        if(ry!==year||rm!==month) return;
+        if(rd<s||rd>e) return;
+        const amt=row.amount||0;
+        // amountが0やHEXでも件数はカウントする
+        total+=amt; totalCount++;
+        // 店舗マッピング
+        const st=STORES.find(st=>row.space&&row.space.includes(st))||
+                  STORES.find(st=>row.space&&st.includes(row.space.slice(0,4)));
+        if(st) storeSales[st]+=amt;
+        // 媒体
+        const pf=PLATFORMS_W.find(p=>row.site&&row.site.includes(p.slice(0,4)));
+        if(pf){pfSales[pf]+=amt;pfCount[pf]++;}
+      });
+    } else if(csvData){
+      csvData.forEach(row=>{
+        if(!row.useDate)return;
+        const parts=row.useDate.split('/');
+        if(parseInt(parts[0])!==year||parseInt(parts[1])!==month)return;
+        const d=parseInt(parts[2]);
+        if(d<s||d>e)return;
+        total+=row.sales;totalCount++;
+        if(storeSales[row.store]!==undefined)storeSales[row.store]+=row.sales;
+        const pf=PLATFORMS_W.find(p=>row.platform&&row.platform.includes(p.slice(0,4)));
+        if(pf){pfSales[pf]+=row.sales;pfCount[pf]++;}
+      });
+    }
+    return {s,e,label,storeSales,pfSales,pfCount,total,totalCount,wi};
+  });
+
+  const monthTotal=weekData.reduce((a,w)=>a+w.total,0);
+  const monthCount=weekData.reduce((a,w)=>a+w.totalCount,0);
+  const monthRate=Math.round(monthTotal/MONTH_TARGET*100);
+  const today=new Date();
+  const isThisMonth=year===today.getFullYear()&&month===today.getMonth()+1;
+  const todayDay=today.getDate();
+  const curWeekIdx=isThisMonth?weeks.findIndex(([s,e])=>todayDay>=s&&todayDay<=e):-1;
+
+  const tabs=['store','platform'].map(v=>`<button class="wv-tab" data-v="${v}"
+    style="padding:6px 16px;border-radius:7px;font-size:12px;font-weight:700;border:none;cursor:pointer;
+    background:${weeklyView===v?'#0f3460':'#f1f5f9'};color:${weeklyView===v?'#fff':'#64748b'}">${v==='store'?'🏠 店舗別':'📊 媒体別'}</button>`).join('');
+
+  // ===== 店舗別テーブル（週=行、店舗=列）=====
+  function storeTable(){
+    // ブランドごとにグループ化したヘッダー
+    const brandGroupHeader=BRAND_GROUPS.map(g=>
+      `<th colspan="${g.stores.length}" style="padding:7px 8px;text-align:center;background:${g.color}22;border-left:2px solid ${g.color};font-size:11px;color:${g.color};font-weight:800">${g.name}</th>`
+    ).join('');
+
+    const storeHeader=STORES.map((st,si)=>{
+      const brand=BRAND_GROUPS.find(g=>g.stores.includes(st));
+      const isFirst=brand&&brand.stores[0]===st;
+      return `<th style="padding:8px 6px;text-align:right;font-size:10px;white-space:nowrap;${isFirst?'border-left:2px solid '+brand.color+';':''}">${st.replace('ECHOES ','').replace('OASIS ','').replace('SHEERS ','').replace('ECHOES','').replace('OASIS','').replace('SHEERS','')}</th>`;
+    }).join('');
+
+    const rows=weekData.map((w,wi)=>{
+      const prev=wi>0?weekData[wi-1].total:null;
+      const rate=prev?Math.round((w.total-prev)/prev*100):null;
+      const isNow=wi===curWeekIdx;
+      const memoKey=`${selMonth}_w${wi}`;
+      const memo=weeklyMemos[memoKey]||'';
+
+      const storeCells=STORES.map(st=>{
+        const v=w.storeSales[st];
+        const brand=BRAND_GROUPS.find(g=>g.stores.includes(st));
+        const isFirst=brand&&brand.stores[0]===st;
+        return `<td style="padding:10px 8px;text-align:right;font-size:12px;font-weight:${v>0?'700':'400'};color:${v>0?'#0f3460':'#e2e8f0'};${isFirst?'border-left:2px solid '+brand.color+';':'border-left:1px solid #f1f5f9;'}">${v>0?fmtK(v):'—'}</td>`;
+      }).join('');
+
+      return `<tr style="background:${isNow?'#eff6ff':'white'};border-bottom:2px solid ${isNow?'#bfdbfe':'#f1f5f9'}">
+        <td style="padding:10px 12px;white-space:nowrap;border-right:1px solid #e2e8f0">
+          <div style="font-size:12px;font-weight:800;color:#0f3460">${['1週目','2週目','3週目','4週目'][wi]}</div>
+          <div style="font-size:10px;color:#94a3b8">${w.s}〜${w.e}日</div>
+          ${isNow?'<div style="font-size:9px;color:#3b82f6;font-weight:700;margin-top:2px">◀ 今週</div>':''}
+        </td>
+        <td style="padding:10px 10px;text-align:right;border-right:1px solid #e2e8f0">
+          <div style="font-size:14px;font-weight:800;color:${w.total>=WEEK_TARGET?'#10b981':'#ef4444'}">${w.total>0?fmtK(w.total):'—'}</div>
+          <div style="font-size:10px;color:#94a3b8">${w.totalCount}件</div>
+        </td>
+        <td style="padding:10px 8px;text-align:right;border-right:2px solid #e2e8f0">
+          <div style="font-size:12px;font-weight:700;color:${rate==null?'#94a3b8':rate>=0?'#10b981':'#ef4444'}">${rate!=null?(rate>=0?'↑+'+rate+'%':'↓'+rate+'%'):'—'}</div>
+          <div style="font-size:10px;color:#94a3b8">${w.totalCount>0?'¥'+Math.round(w.total/w.totalCount).toLocaleString():''}</div>
+        </td>
+        ${storeCells}
+        <td style="padding:6px 10px;border-left:2px solid #e2e8f0;min-width:160px">
+          <textarea class="weekly-memo" data-key="${memoKey}"
+            style="width:100%;min-height:52px;padding:6px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:11px;resize:vertical;line-height:1.5;color:#475569"
+            placeholder="施策メモ...">${memo}</textarea>
+        </td>
+      </tr>`;
+    }).join('');
+
+    const monthStoreCells=STORES.map(st=>{
+      const ms=weekData.reduce((a,w)=>a+w.storeSales[st],0);
+      const brand=BRAND_GROUPS.find(g=>g.stores.includes(st));
+      const isFirst=brand&&brand.stores[0]===st;
+      return `<td style="padding:10px 8px;text-align:right;font-size:12px;font-weight:800;color:${ms>0?'#0f3460':'#e2e8f0'};background:#f8fafc;${isFirst?'border-left:2px solid '+brand.color+';':'border-left:1px solid #e2e8f0;'}">${ms>0?fmtK(ms):'—'}</td>`;
+    }).join('');
+
+    return `<table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:#0f3460;color:#fff">
+          <th style="padding:10px 12px;text-align:left" rowspan="2">週</th>
+          <th style="padding:10px 10px;text-align:right" rowspan="2">週合計</th>
+          <th style="padding:10px 8px;text-align:right;border-right:2px solid #1e4a7a" rowspan="2">前週比<br><span style="font-size:9px;color:#93c5fd">平均単価</span></th>
+          ${brandGroupHeader}
+          <th rowspan="2" style="padding:10px 10px;text-align:left;min-width:160px;border-left:2px solid #1e4a7a">施策メモ</th>
+        </tr>
+        <tr style="background:#1e4a7a;color:#93c5fd">
+          ${storeHeader}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr style="border-top:2px solid #0f3460;background:#f0f4ff">
+          <td style="padding:10px 12px;font-size:12px;font-weight:800;color:#0f3460;border-right:1px solid #e2e8f0">月計</td>
+          <td style="padding:10px 10px;text-align:right;font-size:15px;font-weight:800;color:${monthTotal>=MONTH_TARGET?'#10b981':'#ef4444'};border-right:1px solid #e2e8f0">${fmtK(monthTotal)}</td>
+          <td style="padding:10px 8px;text-align:right;font-size:11px;color:#64748b;border-right:2px solid #e2e8f0">${monthCount}件<br>${monthCount>0?fmtK(Math.round(monthTotal/monthCount)):''}</td>
+          ${monthStoreCells}
+          <td style="border-left:2px solid #e2e8f0;padding:6px 10px">
+            <textarea class="weekly-memo" data-key="${selMonth}_total_memo"
+              style="width:100%;min-height:44px;padding:5px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:11px;resize:vertical"
+              placeholder="今月の総括...">${weeklyMemos[selMonth+'_total_memo']||''}</textarea>
+          </td>
+        </tr>
+      </tfoot>
+    </table>`;
+  }
+
+  // ===== 媒体別テーブル =====
+  function pfTable(){
+    const pfRows=PLATFORMS_W.map(p=>{
+      const target=PF_TARGETS[p]||0;
+      const monthPfS=weekData.reduce((a,w)=>a+w.pfSales[p],0);
+      const monthPfC=weekData.reduce((a,w)=>a+w.pfCount[p],0);
+      const mRate=target>0?Math.round(monthPfS/target*100):null;
+      const weekCells=weekData.map((w,wi)=>{
+        const ps=w.pfSales[p],pc=w.pfCount[p];
+        const wt=target?Math.round(target/4):0;
+        const avg=pc>0?Math.round(ps/pc):0;
+        const isNow=wi===curWeekIdx;
+        const c=wt?(ps>=wt?'#10b981':'#ef4444'):'#475569';
+        return `<td style="padding:10px 10px;text-align:right;background:${isNow?'#eff6ff':'white'};border-left:1px solid #e2e8f0">
+          <div style="font-size:13px;font-weight:700;color:${ps>0?c:'#e2e8f0'}">${ps>0?fmtK(ps):'—'}</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:2px">${pc>0?pc+'件 / '+fmtK(avg):''}</div>
+        </td>`;
+      }).join('');
+      return `<tr style="border-bottom:2px solid #f1f5f9">
+        <td style="padding:12px 14px;border-right:1px solid #e2e8f0">
+          <div style="font-size:13px;font-weight:800;color:#0f3460">${PF_SHORT[p]}</div>
+          ${target>0?`<div style="font-size:10px;color:#94a3b8">\u76ee\u6a19 ${fmtK(target)}/\u6708</div>`:''}
+        </td>
+        ${weekCells}
+        <td style="padding:10px 12px;text-align:right;border-left:2px solid #e2e8f0">
+          <div style="font-size:14px;font-weight:800;color:${mRate!=null?(mRate>=100?'#10b981':'#ef4444'):'#0f3460'}">${monthPfS>0?fmtK(monthPfS):'—'}</div>
+          ${mRate!=null?`<div style="font-size:11px;font-weight:700;color:${mRate>=100?'#10b981':'#ef4444'}">${mRate}%\u9054\u6210</div>`:''}
+          <div style="font-size:10px;color:#94a3b8">${monthPfC}\u4ef6 / \u5e73\u5747${monthPfC>0?fmtK(Math.round(monthPfS/monthPfC)):'\u2014'}</div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    const weekCols=weeks.map(([s,e],wi)=>`<th style="padding:10px 10px;text-align:right;min-width:110px;${wi===curWeekIdx?'background:#1e5f88;':''}">
+      <div>${['1週目','2週目','3週目','4週目'][wi]}</div>
+      <div style="font-size:9px;color:#93c5fd;font-weight:400">${s}〜${e}日${wi===curWeekIdx?' ◀今':''}</div>
+    </th>`).join('');
+
+    return `<table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#0f3460;color:#fff">
+        <th style="padding:10px 14px;text-align:left;min-width:130px">\u5a92\u4f53</th>
+        ${weekCols}
+        <th style="padding:10px 12px;text-align:right;min-width:120px;border-left:2px solid #1e4a7a">\u6708\u8a08 / \u9054\u6210\u7387</th>
+      </tr></thead>
+      <tbody>${pfRows}</tbody>
+    </table>`;
+  }
+
+  return `
+    <div class="card" style="background:linear-gradient(135deg,#0f3460,#1e5f88);color:#fff;margin-bottom:14px;padding:16px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-size:10px;color:#93c5fd;margin-bottom:2px">${selMonth} 月間目標</div>
+          <div style="font-size:24px;font-weight:800">¥${(MONTH_TARGET/10000).toFixed(0)}万</div></div>
+        <div style="text-align:right"><div style="font-size:10px;color:#93c5fd;margin-bottom:2px">現状</div>
+          <div style="font-size:24px;font-weight:800;color:${monthTotal>=MONTH_TARGET?'#4ade80':'#fbbf24'}">${fmtK(monthTotal)}</div></div>
+      </div>
+      <div style="background:rgba(255,255,255,.2);border-radius:6px;height:12px;margin-bottom:8px">
+        <div style="width:${Math.min(100,monthRate)}%;height:12px;background:${monthRate>=100?'#4ade80':'#fbbf24'};border-radius:6px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#93c5fd">
+        <span>${monthRate}% 達成　週目標 ${fmtK(WEEK_TARGET)}/週</span>
+        <span>残り ${fmtK(Math.max(0,MONTH_TARGET-monthTotal))}</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      ${PLATFORMS_W.map(p=>{
+        const ms=weekData.reduce((a,w)=>a+w.pfSales[p],0);
+        const mc=weekData.reduce((a,w)=>a+w.pfCount[p],0);
+        const target=PF_TARGETS[p]||0;
+        const rate=target>0?Math.round(ms/target*100):null;
+        const avg=mc>0?Math.round(ms/mc):0;
+        return '<div class="card" style="padding:12px 14px">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+          '<span style="font-size:12px;font-weight:800;color:#0f3460">'+PF_SHORT[p]+'</span>'+
+          (rate!=null?'<span style="font-size:10px;font-weight:700;color:'+(rate>=100?'#10b981':'#ef4444')+'">'+rate+'%</span>':'<span style="font-size:9px;color:#94a3b8">目標未設定</span>')+
+          '</div>'+
+          '<div style="font-size:18px;font-weight:800;color:'+(ms>0?'#0f3460':'#94a3b8')+'">'+(ms>0?fmtK(ms):'—')+'</div>'+
+          (target>0?'<div style="margin:6px 0 4px;background:#f1f5f9;border-radius:4px;height:6px"><div style="width:'+Math.min(100,rate)+'%;height:6px;background:'+(rate>=100?'#10b981':'#3B82F6')+';border-radius:4px"></div></div>'+
+          '<div style="font-size:9px;color:#94a3b8">目標 '+fmtK(target)+'/月</div>':'')+
+          '<div style="font-size:10px;color:#64748b;margin-top:6px">'+mc+'件 / 平均'+(avg>0?fmtK(avg):'—')+'</div>'+
+          '</div>';
+      }).join('')}
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-h" style="margin:0">週次分析</div>
+      <div style="display:flex;gap:6px">${tabs}</div>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto">
+      ${weeklyView==='store'?storeTable():pfTable()}
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <span style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:${useGmail?'#d1fae5':'#eff6ff'};color:${useGmail?'#065f46':'#1e40af'}">
+        ${useGmail?'📧 Gmailログ（予約確定日ベース）':'📋 統合予約DB（利用日ベース）'}
+      </span>
+      <span style="font-size:10px;color:#94a3b8">メモは自動保存。施策は日曜に記入→月曜実行→水曜に効果確認。</span>
+    </div>
+  `;
+}
+
+
+
+
+
+const TITLES={dashboard:'ダッシュボード',monthly:'月次詳細',analysis:'分析',store:'店舗別分析',compare:'全店比較',pulse:'Pulse・メモ',weekly:'週次モニタリング',gmail:'Gmail予約ログ',yoy:'前年比較',strategy:'計画・提案',forecast:'着地予測',settings:'設定・CSV'};
+
+const NAV=[
+  {k:'_sec1', l:'稼働状況', sec:true},
+  {k:'forecast',l:'着地予測',e:'📁'},
+  {k:'gmail',l:'予約ログ',e:'📧'},
+  {k:'weekly',l:'週次',e:'📅'},
+  {k:'_sec2', l:'月次管理', sec:true},
+  {k:'dashboard',l:'ダッシュボード',e:'📊'},
+  {k:'monthly',l:'月次詳細',e:'📋'},
+  {k:'store',l:'店舗別',e:'🏠'},
+  {k:'compare',l:'全店比較',e:'📈'},
+  {k:'_sec3', l:'分析・比較', sec:true},
+  {k:'analysis',l:'分析',e:'🔍'},
+  {k:'yoy',l:'前年比較',e:'📊'},
+  {k:'_sec4', l:'戦略', sec:true},
+  {k:'strategy',l:'計画・提案',e:'🎯'},
+  {k:'pulse',l:'Pulse・メモ',e:'📝'},
+  {k:'settings',l:'設定・CSV',e:'⚙️'},
+];
+const MONTH_PAGES=['dashboard','store','analysis','strategy','yoy','weekly','forecast'];
+
+
+function pageForecast(){
+  const today=new Date();
+  const year=today.getFullYear();
+  const month=today.getMonth()+1;
+  const day=today.getDate();
+  const daysInMonth=new Date(year,month,0).getDate();
+  const elapsed=day;
+  const remaining=daysInMonth-day;
+  const MONTH_TARGET=2000000;
+  const STORE_TARGET=250000;
+
+  // 今月・直近確定月のインデックス
+  const thisYM=year+'/'+String(month).padStart(2,'0');
+  const mi=MONTHS.indexOf(thisYM);
+
+  // 2ヶ月前（先月は未確定のため固定で2ヶ月前を使用）
+  let prevYM='',pi=-1;
+  for(let back=2;back<=6;back++){
+    const d2=new Date(year,month-1-back,1);
+    const ym2=d2.getFullYear()+'/'+String(d2.getMonth()+1).padStart(2,'0');
+    const i2=MONTHS.indexOf(ym2);
+    if(i2<0)continue;
+    const totalSales2=STORES.reduce((a,s)=>a+(DATA[s][i2].sales||0),0);
+    const totalRes2  =STORES.reduce((a,s)=>a+(DATA[s][i2].res||0),0);
+    if(totalSales2>0&&totalRes2>0){prevYM=ym2;pi=i2;break;}
+  }
+
+  // ── 確定済み直近月の平均単価（統合予約DBから）──
+  const prevStoreSales={},prevStoreRes={};
+  STORES.forEach(s=>{
+    prevStoreSales[s]=pi>=0?DATA[s][pi].sales:0;
+    prevStoreRes[s] =pi>=0?(DATA[s][pi].res||DATA[s][pi].reservations||0):0;
+  });
+  const prevTotalSales=Object.values(prevStoreSales).reduce((a,v)=>a+v,0);
+  const prevTotalRes  =Object.values(prevStoreRes).reduce((a,v)=>a+v,0);
+  let prevAvgUnit=prevTotalRes>0?Math.round(prevTotalSales/prevTotalRes):0;
+
+  // 先月DBが空の場合、Gmailログから先月利用分の平均単価を算出
+  if(prevAvgUnit===0&&gmailData){
+    let gPrevSales=0,gPrevCount=0;
+    gmailData.forEach(row=>{
+      const useYM=parseUseDate(row.dateTime);
+      if(useYM===prevYM&&row.amount>0){gPrevSales+=row.amount;gPrevCount++;}
+    });
+    if(gPrevCount>0)prevAvgUnit=Math.round(gPrevSales/gPrevCount);
+  }
+  // それでも0の場合、2ヶ月前〜3ヶ月前の平均から推計
+  if(prevAvgUnit===0){
+    let fallbackSales=0,fallbackRes=0;
+    for(let back=2;back<=4;back++){
+      const bi=pi-back+1;
+      if(bi>=0){
+        fallbackSales+=STORES.reduce((a,s)=>a+DATA[s][bi].sales,0);
+        fallbackRes  +=STORES.reduce((a,s)=>a+(DATA[s][bi].res||0),0);
+      }
+    }
+    if(fallbackRes>0)prevAvgUnit=Math.round(fallbackSales/fallbackRes);
+  }
+
+  // ── 今月の予約件数（Gmailログから）──
+  let thisMonthGmailCount=0,thisMonthUsageAmt=0;
+  const storeGmailCount={},storeUsageAmt={};
+  STORES.forEach(s=>{storeGmailCount[s]=0;storeUsageAmt[s]=0;});
+
+  // 店舗名を長い順にソート（OASIS京都❷がOASIS京都に誤マッチしないよう）
+  const STORES_BY_LEN=[...STORES].sort((a,b)=>b.length-a.length);
+  function matchStore(spaceName){
+    if(!spaceName)return null;
+    const sp=String(spaceName);
+    // 正方向: スペース名に店舗名が含まれる
+    const m1=STORES_BY_LEN.find(s=>sp.includes(s));
+    if(m1)return m1;
+    // 逆方向: 店舗名にスペース名の先頭6文字が含まれる
+    const sp6=sp.slice(0,6);
+    return STORES_BY_LEN.find(s=>s.includes(sp6))||null;
+  }
+  // 利用日のパース（"2026年09月22日..." or "2026/9/22..."）
+  function parseUseDate(dateTime){
+    if(!dateTime)return null;
+    const m1=String(dateTime).match(/(\d{4})[年\/](\d{1,2})[月\/](\d{1,2})/);
+    if(!m1)return null;
+    return m1[1]+'/'+String(parseInt(m1[2])).padStart(2,'0');
+  }
+
+  // 利用月別件数の集計（全受信メール対象）
+  const usageByMonth={};  // { "2026/10": 件数, ... }
+  if(gmailData){
+    gmailData.forEach(row=>{
+      const useYM=parseUseDate(row.dateTime);
+      const st=matchStore(row.space);
+      if(!useYM)return;
+
+      // 利用月別に件数を集計
+      usageByMonth[useYM]=(usageByMonth[useYM]||0)+1;
+
+      // 今月利用分のみカウント（件数・金額）
+      if(useYM===thisYM){
+        thisMonthGmailCount++;
+        if(st)storeGmailCount[st]++;
+        if(row.amount>0){
+          thisMonthUsageAmt+=(row.amount||0);
+          if(st)storeUsageAmt[st]=(storeUsageAmt[st]||0)+(row.amount||0);
+        }
+      }
+    });
+  }
+
+  // ── 着地予測 ──
+  // 今月確定件数（利用日ベース）÷ 経過日数 × 月日数
+  const projectedRes=elapsed>0?Math.round(thisMonthGmailCount/elapsed*daysInMonth):0;
+  const projected=Math.round(projectedRes*prevAvgUnit);
+  const projRate=MONTH_TARGET>0?Math.round(projected/MONTH_TARGET*100):0;
+  const shortage=Math.max(0,MONTH_TARGET-projected);
+  const dailyResNeeded=remaining>0&&prevAvgUnit>0?
+    Math.ceil((MONTH_TARGET-thisMonthGmailCount*prevAvgUnit)/(remaining*prevAvgUnit)):0;
+
+  // 今後3ヶ月の利用予定件数（内訳表示用）
+  const futureMonths=[0,1,2].map(d=>{
+    const dt=new Date(year,month-1+d,1);
+    const ym=dt.getFullYear()+'/'+String(dt.getMonth()+1).padStart(2,'0');
+    return {ym, label: (dt.getMonth()+1)+'月', count: usageByMonth[ym]||0};
+  });
+
+  // ── 今月の実績（統合DBから）──
+  const totalActual=mi>=0?STORES.reduce((a,s)=>a+DATA[s][mi].sales,0):0;
+  const totalGP    =mi>=0?STORES.reduce((a,s)=>a+DATA[s][mi].gp,0):0;
+
+  // ── 今週のGmail予約 ──
+  let thisWeekCount=0,thisWeekAmt=0;
+  if(gmailData){
+    const _ws2=new Date(today);_ws2.setDate(today.getDate()-today.getDay()+1);
+    const wkStr=_ws2.getFullYear()+'/'+String(_ws2.getMonth()+1).padStart(2,'0')+'/'+String(_ws2.getDate()).padStart(2,'0');
+    gmailData.forEach(row=>{
+      const d=getDateStr(row.receivedAt);
+      if(d>=wkStr&&d<=todayStr){thisWeekCount++;thisWeekAmt+=(row.amount||0);}
+    });
+  }
+
+  // ── 店舗別着地予測 ──
+  const storeCards=STORES.map(s=>{
+    const pRes=prevStoreRes[s];
+    const pSales=prevStoreSales[s];
+    const pAvg=pRes>0?Math.round(pSales/pRes):prevAvgUnit;
+    const tRes=storeGmailCount[s];
+    const confirmedStoreAmt=storeUsageAmt[s]||0;
+    const projRes=elapsed>0?Math.round(tRes/elapsed*daysInMonth):0;
+    const projRemainRes=elapsed>0?Math.round((tRes/elapsed)*remaining):0;
+    const proj=confirmedStoreAmt+Math.round(projRemainRes*pAvg);
+    // 今月統合DBの粗利
+    const gp=mi>=0?DATA[s][mi].gp:0;
+    const gpProj=mi>=0&&DATA[s][mi].sales>0?Math.round(gp/DATA[s][mi].sales*proj):0;
+    const gpOk=gpProj>=STORE_TARGET;
+    const dailyNeeded=remaining>0&&pAvg>0?
+      Math.max(0,Math.ceil((STORE_TARGET-tRes*pAvg)/(remaining*pAvg))):0;
+
+    return `<div class="card" style="border-left:4px solid ${COLORS[s]};padding:12px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:11px;font-weight:700;color:#0f3460">${s}</span>
+        <span style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;
+          background:${gpOk?'#d1fae5':'#fee2e2'};color:${gpOk?'#065f46':'#991b1b'}">
+          ${gpOk?'\u76ee\u6a19\u898b\u8fbc':'\u8981\u5bfe\u7b56'}
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px">
+        <div style="text-align:center;background:#f8fafc;border-radius:5px;padding:6px 4px">
+          <div style="color:#94a3b8;margin-bottom:2px">\u4eca\u6708\u4ef6\u6570</div>
+          <div style="font-size:15px;font-weight:800;color:#0f3460">${tRes}<span style="font-size:9px">\u4ef6</span></div>
+        </div>
+        <div style="text-align:center;background:#f8fafc;border-radius:5px;padding:6px 4px">
+          <div style="color:#94a3b8;margin-bottom:2px">\u4e88\u6e2c\u4ef6\u6570</div>
+          <div style="font-size:15px;font-weight:800;color:#3B82F6">${projRes}<span style="font-size:9px">\u4ef6</span></div>
+        </div>
+        <div style="text-align:center;background:#f8fafc;border-radius:5px;padding:6px 4px">
+          <div style="color:#94a3b8;margin-bottom:2px">\u5e73\u5747\u5358\u4fa1</div>
+          <div style="font-size:15px;font-weight:800;color:#8B5CF6">${pAvg>0?fmtK(pAvg):'\u2014'}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:9px;color:#94a3b8">\u7740\u5730\u4e88\u6e2c\u58f2\u4e0a</div>
+          <div style="font-size:16px;font-weight:800;color:${proj>=MONTH_TARGET/STORES.length?'#10b981':'#ef4444'}">${proj>0?fmtK(proj):'\u2014'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:#94a3b8">\u7c97\u5229\u4e88\u6e2c</div>
+          <div style="font-size:14px;font-weight:700;color:${gpOk?'#10b981':'#ef4444'}">${gpProj>0?fmtK(gpProj):'\u2014'}</div>
+          ${dailyNeeded>0?`<div style="font-size:9px;color:#ef4444">\u6b8b${remaining}\u65e5\u306b${dailyNeeded}\u4ef6/\u65e5\u5fc5\u8981</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const hasGmail=gmailData&&gmailData.length>0;
+
+  return `
+    <div class="card" style="background:linear-gradient(135deg,#0f3460,#1e5f88);color:#fff;margin-bottom:14px;padding:18px 22px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;color:#93c5fd;margin-bottom:2px">${year}\u5e74${month}\u6708 \u7740\u5730\u4e88\u6e2c</div>
+          <div style="font-size:32px;font-weight:800">${projected>0?fmtK(projected):'\u30c7\u30fc\u30bf\u4e0d\u8db3'}</div>
+          <div style="font-size:12px;color:${projected>=MONTH_TARGET?'#4ade80':'#fbbf24'};font-weight:700;margin-top:2px">
+            \u76ee\u6a19\u00a5${(MONTH_TARGET/10000).toFixed(0)}\u4e07\u306b\u5bfe\u3057${projRate}%\u4e88\u6e2c
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#93c5fd;margin-bottom:2px">Gmail\u4e88\u7d04\u4ef6\u6570</div>
+          <div style="font-size:28px;font-weight:800">${thisMonthGmailCount}\u4ef6</div>
+          <div style="font-size:11px;color:#93c5fd;margin-top:2px">\u4e88\u6e2c${projectedRes}\u4ef6 / \u6b8b${remaining}\u65e5</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.15);border-radius:6px;height:8px;margin-bottom:8px">
+        <div style="width:${Math.min(100,Math.round(elapsed/daysInMonth*100))}%;height:8px;background:rgba(255,255,255,.5);border-radius:6px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#93c5fd">
+        <span>${elapsed}\u65e5\u7d4c\u904e / ${daysInMonth}\u65e5\u4e2d</span>
+        <span>\u5148\u6708\u5e73\u5747\u5358\u4fa1: ${prevAvgUnit>0?fmtK(prevAvgUnit):'\u30c7\u30fc\u30bf\u306a\u3057'}</span>
+        ${shortage>0?`<span>\u4e0d\u8db3: ${fmtK(shortage)}</span>`:'<span style="color:#4ade80">\u76ee\u6a19\u9054\u6210\u898b\u8fbc\u307f</span>'}
+      </div>
+      ${!hasGmail?'<div style="background:rgba(255,165,0,.2);border-radius:6px;padding:6px 10px;margin-top:8px;font-size:10px">⚠️ Gmailログ未取得。「↻ 今すぐ更新」を押すと最新予約件数で予測できます。</div>':''}
+      <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:7px 12px;margin-top:8px;font-size:10px;color:#e0f2fe">
+        <span style="color:#93c5fd;margin-right:6px">受信済み予約の利用月内訳:</span>
+        ${futureMonths.map(m=>`<span style="margin-right:12px"><b style="color:#fff">${m.label}利用</b> ${m.count}件${m.ym===thisYM?' （今月分）':''}</span>`).join('')}
+        <span style="color:#7dd3d0;margin-left:4px">※各月は独立した集計</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div class="card" style="padding:12px 14px;border-left:3px solid #3B82F6">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">今月予約件数（Gmail）</div>
+        <div style="font-size:20px;font-weight:800;color:#3B82F6">${thisMonthGmailCount}件</div>
+        <div style="font-size:9px;color:#94a3b8">予測: ${projectedRes}件</div>
+      </div>
+      <div class="card" style="padding:12px 14px;border-left:3px solid #8B5CF6">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">先月平均単価</div>
+        <div style="font-size:20px;font-weight:800;color:#8B5CF6">${prevAvgUnit>0?fmtK(prevAvgUnit):'—'}</div>
+        <div style="font-size:9px;color:#94a3b8">${prevYM} 実績</div>
+      </div>
+      <div class="card" style="padding:12px 14px;border-left:3px solid #10B981">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">今週の予約（Gmail）</div>
+        <div style="font-size:20px;font-weight:800;color:#10B981">${thisWeekCount}件</div>
+        <div style="font-size:9px;color:#94a3b8">${thisWeekAmt>0?fmtK(thisWeekAmt):''}</div>
+      </div>
+      <div class="card" style="padding:12px 14px;border-left:3px solid #F59E0B">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">今月統合DB実績</div>
+        <div style="font-size:20px;font-weight:800;color:#F59E0B">${totalActual>0?fmtK(totalActual):'—'}</div>
+        <div style="font-size:9px;color:#94a3b8">粗利: ${totalGP!==0?fmtK(totalGP):'—'}</div>
+      </div>
+    </div>
+
+    <div class="sec-h">店舗別 着地予測（先月平均単価 × 今月予測件数）</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${storeCards}
+    </div>
+    <div style="font-size:10px;color:#94a3b8;margin-top:8px">
+      予測式: 先月平均単価 × (今月Gmail予約件数 ÷ 経過日数 × 月の日数)。カシカシは金額不明のため件数のみ計上。
+    </div>
+  `;
+}
+
+
+function renderNav(){
+  document.getElementById('nav').innerHTML=NAV.map(n=>{
+    if(n.sec) return `<div style="font-size:9px;font-weight:800;color:#64748b;padding:14px 16px 4px;letter-spacing:.08em;text-transform:uppercase">${n.l}</div>`;
+    return `<button class="nb${page===n.k?' act':''}" data-k="${n.k}"><span class="ico">${n.e}</span><span class="nb-label">${n.l}</span></button>`;
+  }).join('');
+  document.addEventListener('click',()=>{if(showMonthPicker){showMonthPicker=false;render();}});
+    document.querySelectorAll('.nb').forEach(b=>b.onclick=()=>{page=b.dataset.k;render();});
+}
+
+function renderMonthSel(){
+  // dashboard / store / analysis は月切替を表示
+  const show=true;
+  (()=>{
+    const sel=document.getElementById('month-sel');
+    if(!sel)return;
+    const mi=MONTHS.indexOf(selMonth);
+    const hasPrev=mi>0,hasNext=mi<MONTHS.length-1;
+    const nowYM=new Date().getFullYear()+'/'+String(new Date().getMonth()+1).padStart(2,'0');
+    const isNow=selMonth===nowYM;
+    const [y,mo]=selMonth.split('/');
+    const label=y+'年'+parseInt(mo)+'月'+(isNow?' ★':'');
+
+    // 年リスト
+    const years=[...new Set(MONTHS.map(m=>m.split('/')[0]))];
+    const pickerY=showMonthPicker?(y||years[years.length-1]):y;
+
+    const yearBtns=years.map(yr=>
+      `<button onclick="event.stopPropagation();showMonthPicker=true;selMonth='${yr}/'+selMonth.split('/')[1];if(!MONTHS.includes(selMonth))selMonth=MONTHS.filter(m=>m.startsWith('${yr}')).pop()||selMonth;render()"
+        style="background:${pickerY===yr?'#0f3460':'#f1f5f9'};color:${pickerY===yr?'#fff':'#475569'}">${yr}</button>`
+    ).join('');
+
+    const monthBtns=Array.from({length:12},(_,i)=>{
+      const mm=String(i+1).padStart(2,'0');
+      const ym=pickerY+'/'+mm;
+      const exists=MONTHS.includes(ym);
+      const isSelected=selMonth===ym;
+      const isNowM=nowYM===ym;
+      return exists
+        ?`<button onclick="event.stopPropagation();selMonth='${ym}';showMonthPicker=false;render()"
+            style="background:${isSelected?'#0f3460':isNowM?'#eff6ff':'#f8fafc'};color:${isSelected?'#fff':isNowM?'#3b82f6':'#475569'};font-weight:${isSelected||isNowM?700:500}">${i+1}月</button>`
+        :`<button disabled style="background:#f8fafc;color:#e2e8f0;cursor:default">${i+1}月</button>`;
+    }).join('');
+
+    const picker=showMonthPicker
+      ?`<div class="month-picker" onclick="event.stopPropagation()">
+          <div class="month-picker-years">${yearBtns}</div>
+          <div class="month-picker-grid">${monthBtns}</div>
+        </div>`:'';
+
+    sel.style.position='relative';
+    sel.innerHTML=
+      `<button onclick="selMonth=MONTHS[${mi-1}];render()" style="padding:5px 9px;border-radius:6px;background:${hasPrev?'#0f3460':'#e2e8f0'};color:${hasPrev?'#fff':'#94a3b8'};font-size:13px;font-weight:700;${hasPrev?'cursor:pointer':''}">❮</button>`+
+      `<button onclick="showMonthPicker=!showMonthPicker;render()" style="padding:5px 14px;border-radius:6px;background:#0f3460;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">${label}</button>`+
+      `<button onclick="selMonth=MONTHS[${mi+1}];render()" style="padding:5px 9px;border-radius:6px;background:${hasNext?'#0f3460':'#e2e8f0'};color:${hasNext?'#fff':'#94a3b8'};font-size:13px;font-weight:700;${hasNext?'cursor:pointer':''}">❯</button>`+
+      picker;
+  })();
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{selMonth=b.dataset.m;render();});
+}
+
+
+
+
+function parseOccupancyCSV(text){
+  try{
+    const lines=text.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2)return null;
+    // クォート対応パーサー
+    function parseLine(line){
+      const cols=[];let inQ=false,cur='';
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+        else{cur+=ch;}
+      }
+      cols.push(cur.trim());
+      return cols;
+    }
+    const h=parseLine(lines[0]).map(x=>x.replace(/^"|"$/g,''));
+    const ix={
+      store:h.findIndex(v=>v.includes('店舗名')||v.includes('店舗')),
+      ym:h.findIndex(v=>v.includes('年月')),
+      count:h.findIndex(v=>v.includes('予約件数')||v.includes('件数')),
+      hours:h.findIndex(v=>v.includes('稼働時間')||v.includes('時間')),
+      total:h.findIndex(v=>v.includes('月間可能')||v.includes('可能')),
+      pct:h.findIndex(v=>v.includes('稼働率')),
+    };
+    if(ix.store<0||ix.ym<0)return null;
+    const data={};
+    lines.slice(1).forEach(line=>{
+      const c=parseLine(line).map(x=>x.replace(/^"|"$/g,''));
+      const store=c[ix.store],ym=c[ix.ym];
+      if(!store||!ym)return;
+      if(!data[store])data[store]={};
+      data[store][ym]={
+        count:parseFloat(c[ix.count])||0,
+        hours:parseFloat(c[ix.hours])||0,
+        total:parseFloat(c[ix.total])||360,
+        pct:parseFloat(c[ix.pct])||0,
+      };
+    });
+    return Object.keys(data).length>0?data:null;
+  }catch(e){console.error('parseOccupancyCSV error:',e);return null;}
+}
+
+function applyOccupancyData(occData){
+  let updated=0;
+  STORES.forEach(s=>{
+    if(!occData[s])return;
+    MONTHS.forEach((m,mi)=>{
+      const occ=occData[s][m];
+      if(!occ)return;
+      const r=DATA[s][mi];
+      r.oh=occ.hours;
+      r.occ=Math.min(100,Math.round(occ.pct));
+      r.vac=100-r.occ;
+      r.hp=r.oh>0?Math.round(r.gp/r.oh):0;
+      // Recalculate bep hours with real occupancy hours
+      r.beph=r.hr>0?Math.round(r.bep/r.hr):0;
+      updated++;
+    });
+  });
+  return updated;
+}
+
+var occCSVData=null;
+
+function parseCSVText(text){
+  try{
+    const lines=text.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2)return null;
+
+    // クォート対応CSVパーサー（"21,000" のようなカンマ付き数値に対応）
+    function parseLine(line){
+      const cols=[];
+      let inQ=false, cur='';
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+        else{cur+=ch;}
+      }
+      cols.push(cur.trim());
+      return cols;
+    }
+
+    // カンマ付き数値を変換 "21,000" → 21000
+    function toNum(v){
+      if(!v)return 0;
+      return parseFloat(String(v).replace(/,/g,'').replace(/"/g,''))||0;
+    }
+
+    const h=parseLine(lines[0]);
+    const ix={
+      store:   h.findIndex(v=>v.includes('統一名称')),
+      platform:h.findIndex(v=>v.includes('プラットフォーム')),
+      date:    h.findIndex(v=>v==='利用日'),
+      sales:   h.findIndex(v=>v==='売上'),
+      fee:     h.findIndex(v=>v==='手数料'),
+      weekday: h.findIndex(v=>v.includes('曜日')),
+    };
+
+    if(ix.store<0||ix.sales<0)return null;
+
+    const storeMap={'ECHOES京都駅前':'ECHOES扇町','OASIS❷京都':'OASIS京都❷'};
+
+    return lines.slice(1).map(line=>{
+      const c=parseLine(line);
+      const sales=toNum(c[ix.sales]);
+      if(!sales)return null;
+      let store=ix.store>=0?(c[ix.store]||''):'';
+      store=storeMap[store]||store;
+      if(!store)return null;
+      return{
+        store,
+        platform:ix.platform>=0?(c[ix.platform]||''):'',
+        useDate: ix.date>=0?(c[ix.date]||''):'',
+        sales,
+        fee:     toNum(ix.fee>=0?c[ix.fee]:0),
+        weekday: ix.weekday>=0?(c[ix.weekday]||''):'',
+      };
+    }).filter(Boolean);
+  }catch(e){return null;}
+}
+
+function readCSV(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const text=e.target.result;
+      const result=parseCSVText(text);
+      if(!result||result.length===0){
+        // Show diagnostic info
+        const lines=text.split(/\r?\n/).filter(l=>l.trim());
+        const h=lines[0].split(',').map(x=>x.trim().replace(/^"|"$/g,'').replace(/\uFEFF/g,''));
+        alert('CSVを認識できませんでした。\n\nヘッダー(最初の8列):\n'+h.slice(0,8).join('\n'));
+        return;
+      }
+      csvData=result;
+      const nd=processCsvToData(result);
+      STORES.forEach(s=>{if(nd[s])DATA[s]=nd[s];});
+      usingRealData=true;
+      alert('\u2705 '+result.length+'\u4ef6\u306e\u4e88\u7d04\u30c7\u30fc\u30bf\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f\uff01');
+      saveAllData();
+      render();
+    }catch(err){
+      alert('エラーが発生しました:\n'+err.message+'\n\n'+err.stack);
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+
+// ── Google Sheetsから自動取得 ─────────────────────────────
+const GS_ID = '1H6WgL2pulFa-YcVEyNTEqo85bAvmUPjA7SQyg66Fdv8';
+function gsUrl(sheet){
+  return 'https://docs.google.com/spreadsheets/d/'+GS_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(sheet);
+}
+
+
+// ── Gmailログから週次データを取得 ─────────────────────────
+async function fetchGmailLog(){
+  try{
+    const text = await fetch(gsUrl('Gmail\u4e88\u7d04\u30ed\u30b0')).then(r=>r.ok?r.text():null).catch(()=>null);
+    if(!text) return null;
+
+    const clean = text.replace(/^\uFEFF/,'');
+    function parseLine(line){
+      const cols=[];let inQ=false,cur='';
+      for(const ch of line){
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+        else cur+=ch;
+      }
+      cols.push(cur.trim());
+      return cols;
+    }
+
+    const lines = clean.split('\n').map(l=>l.replace(/\r$/,'')).filter(l=>l.trim());
+    if(lines.length<2) return null;
+
+    const h = parseLine(lines[0]).map(x=>x.replace(/^"|"$/g,'').trim());
+    // 列: 受信日時 サイト 予約日時 人数 スペース 使用用途 予約ID 件名 備考 デバッグ_本文 メールID 金額
+    const ix={
+      receivedAt: h.findIndex(v=>v.includes('\u53d7\u4fe1\u65e5')),
+      site:       h.findIndex(v=>v==='\u30b5\u30a4\u30c8'),
+      dateTime:   h.findIndex(v=>v.includes('\u4e88\u7d04\u65e5')),
+      space:      h.findIndex(v=>v==='\u30b9\u30da\u30fc\u30b9'),
+      amount:     h.findIndex(v=>v==='\u91d1\u984d'),
+    };
+
+    const rows=[];
+    lines.slice(1).forEach(line=>{
+      const c=parseLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
+      if(!c[ix.receivedAt]) return;
+      const amount=ix.amount>=0?parseInt((c[ix.amount]||'').replace(/,/g,''))||0:0;
+      rows.push({
+        receivedAt: c[ix.receivedAt],
+        site:       ix.site>=0?c[ix.site]:'',
+        dateTime:   ix.dateTime>=0?c[ix.dateTime]:'',
+        space:      ix.space>=0?c[ix.space]:'',
+        amount,
+      });
+    });
+    return rows.length>0?rows:null;
+  }catch(e){
+    console.error('GmailLog fetch error:',e);
+    return null;
+  }
+}
+
+async function fetchStoreCosts(){
+  // 統合予約DB（売上/手数料/件数）とコスト一覧_DB（家賃/電気代等）から直接集計
+  // 店舗別シートはSUMIFS数式のためgviz/tqで値が取れない → 使わない
+
+  // スプレッドシートの店舗名 → ダッシュボードキー のマッピング
+  const STORE_KEY_MAP={
+    'ECHOES新大阪':'ECHOES新大阪',
+    'ECHOES京都駅前':'ECHOES扇町',  // 実態はECHOES京都駅前
+    'ECHOES扇町':'ECHOES扇町',
+    'ECHOES京都中央':'ECHOES京都中央',
+    'OASIS京都':'OASIS京都',
+    'OASIS京都❷':'OASIS京都❷',
+    'OASIS京都東':'OASIS京都東',
+    'OASIS天王寺':'OASIS天王寺',
+    'SHEERS天王寺':'SHEERS天王寺',
+    'SHEERS京都七条':'SHEERS京都七条',
+  };
+
+  const costData={};
+
+  function parseCsvLine(line){
+    const cols=[];let inQ=false,cur='';
+    for(const ch of line){
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    cols.push(cur.trim());
+    return cols.map(x=>x.replace(/^"|"$/g,'').replace(/^﻿/,'').trim());
+  }
+
+  function toN(v){
+    if(!v||v==='-'||v==='−'||v==='')return 0;
+    const n=parseFloat(String(v).replace(/[,\s¥]/g,''));
+    return isNaN(n)?0:Math.round(n);
+  }
+
+  // 利用日(YYYY/MM/DD or YYYY-MM-DD) → "YYYY/MM"
+  function dateToYM(raw){
+    if(!raw)return null;
+    const s=String(raw).trim();
+    const m=s.match(/^(\d{4})[\/\-](\d{1,2})/);
+    if(m)return m[1]+'/'+String(parseInt(m[2])).padStart(2,'0');
+    return null;
+  }
+
+  // 年月列(YYYY/MM or YYYY年MM月) → "YYYY/MM"
+  function parseYM(raw){
+    if(!raw)return null;
+    const s=String(raw).trim();
+    const m1=s.match(/(\d{4})年(\d{1,2})月/);
+    if(m1)return m1[1]+'/'+String(parseInt(m1[2])).padStart(2,'0');
+    const m2=s.match(/^(\d{4})[\/\-](\d{1,2})/);
+    if(m2)return m2[1]+'/'+String(parseInt(m2[2])).padStart(2,'0');
+    return null;
+  }
+
+  function ensureEntry(store, ym){
+    if(!costData[store])costData[store]={};
+    if(!costData[store][ym])costData[store][ym]={sales:0,fee:0,res:0,rent:0,elec:0,wifi:0,clean:0,other:0};
+    return costData[store][ym];
+  }
+
+  // ① コスト一覧_DB: 店舗名(0), 年月(1), 家賃(2), 水光熱費(3), WiFi代(4), 清掃費(5)
+  try{
+    const costText=await fetch(gsUrl('コスト一覧_DB')).then(r=>r.ok?r.text():null).catch(()=>null);
+    if(costText){
+      const lines=costText.replace(/^﻿/,'').split('\n').map(l=>l.replace(/\r$/,''));
+      let dataStart=0;
+      const firstCols=parseCsvLine(lines[0]||'');
+      // ヘッダー行かチェック（数字じゃなければスキップ）
+      if(isNaN(parseInt(firstCols[1])))dataStart=1;
+      let count=0;
+      for(let i=dataStart;i<lines.length;i++){
+        if(!lines[i].trim())continue;
+        const c=parseCsvLine(lines[i]);
+        const storeName=(c[0]||'').trim();
+        const ym=parseYM(c[1]);
+        if(!storeName||!ym)continue;
+        const dashName=STORE_KEY_MAP[storeName]||storeName;
+        const entry=ensureEntry(dashName,ym);
+        entry.rent =toN(c[2]);
+        entry.elec =toN(c[3]);
+        entry.wifi =toN(c[4]);
+        entry.clean=toN(c[5]);
+        count++;
+      }
+      console.log('コスト一覧_DB 取得:',count,'行');
+    } else {
+      console.warn('コスト一覧_DB 取得失敗');
+    }
+  }catch(e){console.error('コスト一覧_DB error:',e);}
+
+  // ② 統合予約DB: 店舗名（統一名称）(5), 利用日(8), 売上(9), 手数料(12)
+  try{
+    const resText=await fetch(gsUrl('統合予約DB')).then(r=>r.ok?r.text():null).catch(()=>null);
+    if(resText){
+      const lines=resText.replace(/^﻿/,'').split('\n').map(l=>l.replace(/\r$/,''));
+      // ヘッダーから列番号を特定
+      const hdr=parseCsvLine(lines[0]||'');
+      const iStore=hdr.findIndex(h=>h.includes('統一名称'));
+      const iDate =hdr.findIndex(h=>h.includes('利用日'));
+      const iSales=hdr.findIndex(h=>h==='売上'||h==='売上(円)');
+      const iFee  =hdr.findIndex(h=>h==='手数料'||h.includes('手数料'));
+      const si=iStore>=0?iStore:5;
+      const di=iDate >=0?iDate :8;
+      const sli=iSales>=0?iSales:9;
+      const fi=iFee  >=0?iFee  :12;
+      console.log('統合予約DB 列インデックス:',{si,di,sli,fi},'ヘッダー:',hdr.slice(0,15));
+
+      let count=0;
+      for(let i=1;i<lines.length;i++){
+        if(!lines[i].trim())continue;
+        const c=parseCsvLine(lines[i]);
+        const storeName=(c[si]||'').trim();
+        const ym=dateToYM(c[di]);
+        if(!storeName||!ym)continue;
+        const dashName=STORE_KEY_MAP[storeName]||storeName;
+        const entry=ensureEntry(dashName,ym);
+        entry.sales+=toN(c[sli]);
+        entry.fee  +=toN(c[fi]);
+        entry.res  +=1;
+        count++;
+      }
+      console.log('統合予約DB 集計:',count,'件');
+    } else {
+      console.warn('統合予約DB 取得失敗');
+    }
+  }catch(e){console.error('統合予約DB error:',e);}
+
+  const total=Object.values(costData).reduce((a,v)=>a+Object.keys(v).length,0);
+  console.log('全店舗コスト取得完了:',total,'ヶ月分');
+  return total>0?costData:null;
+}
+
+async function debugGsSheets(){
+  const dbg=document.getElementById('gs-debug');
+  if(!dbg)return;
+  dbg.style.display='block';
+  dbg.textContent='🔍 接続テスト開始...\n';
+  const log=s=>{dbg.textContent+=s+'\n';dbg.scrollTop=dbg.scrollHeight;};
+  log('スプレッドシートID: '+GS_ID);
+
+  // 店舗シートのパーステスト（ECHOES新大阪だけ詳細表示）
+  const testSheet='ECHOES新大阪';
+  const url='https://docs.google.com/spreadsheets/d/'+GS_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(testSheet);
+  try{
+    const r=await fetch(url);
+    if(r.ok){
+      const t=await r.text();
+      const lines=t.replace(/^﻿/,'').split('\n').map(l=>l.replace(/\r$/,''));
+      log('\n--- '+testSheet+' 最初の10行 ---');
+      lines.slice(0,10).forEach((l,i)=>log('行'+(i+1)+': '+l.slice(0,80)));
+
+      // ヘッダー行を探す
+      let hi=-1;
+      for(let i=0;i<Math.min(lines.length,20);i++){
+        const a=(lines[i].split(',')[0]||'').replace(/^"|"$/g,'').trim();
+        if(a==='年月'||a.includes('年月')){hi=i;break;}
+      }
+      log('\n→ ヘッダー行検出: '+(hi>=0?'行'+(hi+1)+'「'+lines[hi].slice(0,80)+'」':'未検出！'));
+
+      // データ行サンプル
+      if(hi>=0){
+        log('→ データ行サンプル(行'+(hi+2)+'):');
+        log('  '+lines[hi+1].slice(0,120));
+      }
+    }
+  }catch(e){log('エラー: '+e.message);}
+
+  // 統合予約DBのサンプル
+  log('\n--- 統合予約DB ヘッダー行 ---');
+  try{
+    const r2=await fetch('https://docs.google.com/spreadsheets/d/'+GS_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('統合予約DB'));
+    if(r2.ok){
+      const t2=await r2.text();
+      const lines2=t2.replace(/^﻿/,'').split('\n').map(l=>l.replace(/\r$/,''));
+      lines2.slice(0,3).forEach((l,i)=>log('行'+(i+1)+': '+l.slice(0,100)));
+    }
+  }catch(e){log('エラー: '+e.message);}
+
+  log('\n✅ テスト完了');
+}
+
+async function loadFromGoogleSheets(showAlert){
+  const gs=document.getElementById('gs-status');
+  const setStatus=t=>{if(gs)gs.textContent=t;};
+  try{
+    setStatus('⏳ 店舗データ取得中...');
+
+    // ① 店舗別月次実績シートを取得（必須）
+    setStatus('⏳ 店舗別月次シート取得中...');
+    const costData=await fetchStoreCosts();
+    let storeMonthsLoaded=0;
+    if(costData&&Object.keys(costData).length>0){
+      costCSVData=costData;
+      applyCostData(costData);
+      storeMonthsLoaded=Object.values(costData).reduce((a,v)=>a+Object.keys(v).length,0);
+      usingRealData=true;
+      console.log('店舗別シートから',storeMonthsLoaded,'ヶ月分取得');
+    } else {
+      console.warn('店舗別シート取得失敗。モックデータを使用します。');
+    }
+
+    // ② 稼働時間_DBを取得（予約ページ等で利用）
+    setStatus('⏳ 稼働時間DB取得中...');
+    let resCount=storeMonthsLoaded; // fetchStoreCosts()で統合予約DBから集計済み
+    try{
+      const occText=await fetch(gsUrl('稼働時間_DB')).then(r=>r.ok?r.text():null).catch(()=>null);
+      if(occText){
+        const occResult=parseOccupancyCSV(occText);
+        if(occResult){occCSVData=occResult;applyOccupancyData(occResult);}
+      }
+    }catch(e2){
+      console.warn('稼働時間DB取得スキップ:',e2.message);
+    }
+
+    // ③ Gmailログ取得（任意）
+    setStatus('⏳ Gmailログ取得中...');
+    const gmailRows=await fetchGmailLog();
+    if(gmailRows){gmailData=gmailRows;console.log('Gmailログ:',gmailRows.length,'件');}
+
+    saveAllData();
+    const now=new Date().toLocaleString('ja-JP');
+    localStorage.setItem('sh_gs_updated',now);
+
+    const summary=storeMonthsLoaded>0
+      ?`店舗データ ${storeMonthsLoaded}ヶ月分`+(resCount>0?` / 予約DB ${resCount}件`:'')
+      :'データ取得できませんでした';
+    setStatus('✅ '+now+' ('+summary+')');
+    if(showAlert)alert('✅ スプレッドシートから取得完了！\n'+summary);
+    render();
+  }catch(e){
+    setStatus('❌ 取得失敗: '+e.message);
+    console.error('スプレッドシート取得失敗:',e.message);
+    if(showAlert)alert('取得失敗: '+e.message);
+    render();
+  }
+}
+
+function bindEvents(){
+  // Dropdown
+  const btn=document.getElementById('dd-btn'),menu=document.getElementById('dd-menu');
+  if(btn&&menu){
+    btn.onclick=e=>{e.stopPropagation();ddOpen=!ddOpen;menu.classList.toggle('open',ddOpen);};
+    menu.querySelectorAll('.dd-item').forEach(el=>el.onclick=()=>{selStore=el.dataset.s;ddOpen=false;render();});
+    document.addEventListener('click',()=>{ddOpen=false;if(menu)menu.classList.remove('open');},{once:true});
+  }
+  // Compare tabs
+  document.querySelectorAll('.mtab[data-k]').forEach(b=>b.onclick=()=>{compareMetric=b.dataset.k;render();});
+  // Pulse tabs
+  document.querySelectorAll('.pulse-tab[data-s]').forEach(b=>b.onclick=()=>{pulseStore=b.dataset.s;render();});
+  document.querySelectorAll('.pe-btn').forEach(b=>b.onclick=()=>{pulseEdit=b.dataset.k;pulseDraft=decodeURIComponent(b.dataset.v);render();});
+  document.querySelectorAll('.ps-btn').forEach(b=>b.onclick=()=>{const ta=document.getElementById(b.dataset.ta);if(ta){saveNote(b.dataset.k,ta.value);pulseEdit=null;render();}});
+  document.querySelectorAll('.pc-btn').forEach(b=>b.onclick=()=>{pulseEdit=null;render();});
+  // Google Sheets fetch
+  const gsFetchBtn = document.getElementById('gs-fetch-btn');
+  if(gsFetchBtn) gsFetchBtn.onclick = () => loadFromGoogleSheets(true);
+  // Gmail period tabs
+  document.querySelectorAll('.gp-tab').forEach(b=>b.onclick=()=>{gmailPeriod=b.dataset.v;render();});
+  // Weekly view tabs
+  document.querySelectorAll('.wv-tab').forEach(b=>b.onclick=()=>{weeklyView=b.dataset.v;render();});
+  // Weekly memo auto-save
+  document.querySelectorAll('.weekly-memo').forEach(ta=>{
+    ta.onchange=()=>{weeklyMemos[ta.dataset.key]=ta.value;saveWeeklyMemos();};
+    ta.oninput=()=>{weeklyMemos[ta.dataset.key]=ta.value;saveWeeklyMemos();};
+  });
+  // YoY metric tabs
+  document.querySelectorAll('.yoy-tab').forEach(b=>b.onclick=()=>{yoyMetric=b.dataset.metric;render();});
+  // YoY store card clicks -> modal
+  document.querySelectorAll('.yoy-store-card').forEach(card=>{
+    card.onclick=()=>{selYoYStore=card.dataset.store;render();};
+  });
+  document.querySelectorAll('.yoy-close-btn').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();selYoYStore=null;render();
+  });
+  const overlay=document.getElementById('yoy-modal-overlay');
+  if(overlay)overlay.onclick=e=>{if(e.target===overlay){selYoYStore=null;render();}};
+  // Strategy handlers
+  document.querySelectorAll('.del-rec').forEach(b=>b.onclick=e=>{e.stopPropagation();saveDismissed(b.dataset.s,decodeURIComponent(b.dataset.r));render();});
+  document.querySelectorAll('.del-cus').forEach(b=>b.onclick=e=>{e.stopPropagation();delCustomRec(b.dataset.s,parseInt(b.dataset.ri));render();});
+  document.querySelectorAll('.restore-r').forEach(b=>b.onclick=e=>{e.stopPropagation();undismissAll(b.dataset.s);render();});
+  document.querySelectorAll('.acr').forEach(b=>b.onclick=()=>{const inp=document.querySelector('.cri[data-s="'+b.dataset.s+'"]');if(inp&&inp.value.trim()){addCustomRec(b.dataset.s,inp.value.trim());render();}});
+  document.querySelectorAll('.cri').forEach(inp=>inp.onkeydown=e=>{if(e.key==='Enter'){const btn=document.querySelector('.acr[data-s="'+inp.dataset.s+'"]');if(btn)btn.click();}});
+  document.querySelectorAll('.sn-e').forEach(b=>b.onclick=()=>{snEdit=b.dataset.k;snDraft=decodeURIComponent(b.dataset.v);render();});
+  document.querySelectorAll('.sn-s').forEach(b=>b.onclick=()=>{const ta=document.getElementById(b.dataset.ta);if(ta){saveSnote(b.dataset.k,ta.value);snEdit=null;render();}});
+  document.querySelectorAll('.sn-c').forEach(b=>b.onclick=()=>{snEdit=null;render();});
+  // Store cards -> store page
+  document.querySelectorAll('.store-card[data-store]').forEach(c=>c.onclick=()=>{selStore=c.dataset.store;page='store';render();});
+  // Settings handlers
+  const saveCfgBtn=document.getElementById('save-cfg');
+  if(saveCfgBtn)saveCfgBtn.onclick=()=>{
+    document.querySelectorAll('.cfg-inp').forEach(inp=>{
+      if(!storeConfig[inp.dataset.s])storeConfig[inp.dataset.s]={};
+      storeConfig[inp.dataset.s][inp.dataset.k]=parseInt(inp.value)||0;
+    });
+    saveStoreConfig();
+    if(usingRealData&&csvData){const nd=processCsvToData(csvData);STORES.forEach(s=>{if(nd[s])DATA[s]=nd[s];});}
+    alert('保存しました。');render();
+  };
+  const resetCfgBtn=document.getElementById('reset-cfg');
+  if(resetCfgBtn)resetCfgBtn.onclick=()=>{STORES.forEach(s=>{storeConfig[s]={rent:CFG[s].rent,elec:CFG[s].elec,wifi:CFG[s].wifi,clean:8000};});saveStoreConfig();render();};
+  const resetDataBtn=document.getElementById('reset-data');
+  if(resetDataBtn)resetDataBtn.onclick=()=>{if(confirm('モックデータに戻しますか？')){csvData=null;usingRealData=false;const fresh=buildData();STORES.forEach(s=>{DATA[s]=fresh[s];});render();}};
+  const resetCostBtn=document.getElementById('reset-cost');
+  if(resetCostBtn)resetCostBtn.onclick=()=>{costCSVData=null;render();};
+  // Cost CSV upload
+  const costInp=document.getElementById('cost-input');
+  if(costInp){
+    costInp.onchange=e=>{
+      if(!e.target.files[0])return;
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        const result=parseCostCSV(ev.target.result);
+        if(!result){alert('固定費CSVの形式を認識できませんでした、1行目が「店舗名,年月,家賌,水光熱費,WiFi代,清掃費」である必要があります。');return;}
+        costCSVData=result;
+        const n=applyCostData(result);
+        alert('✅ '+n+'店舗の固定費データを読み込みました！');
+        render();
+      };
+      reader.readAsText(e.target.files[0],'UTF-8');
+    };
+  }
+  // Reservation CSV upload (settings page)
+  const csvInpS2=document.getElementById('csv-input-s');
+  if(csvInpS2){csvInpS2.onchange=e=>{if(e.target.files[0])readCSV(e.target.files[0]);};};
+  // Occupancy CSV upload
+  const occInp=document.getElementById('occ-input');
+  if(occInp){
+    occInp.onchange=e=>{
+      if(!e.target.files[0])return;
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        const result=parseOccupancyCSV(ev.target.result);
+        if(!result){alert('稼働時間CSVの形式を認識できませんでした。');return;}
+        occCSVData=result;
+        const n=applyOccupancyData(result);
+        alert('✅ '+n+'件の稼働時間データを反映しました！\n稼働率が実際の予約時間に基づく正確な数値に更新されました。');
+        render();
+      };
+      reader.readAsText(e.target.files[0],'UTF-8');
+    };
+  }
+  const resetOccBtn=document.getElementById('reset-occ');
+  if(resetOccBtn)resetOccBtn.onclick=()=>{occCSVData=null;const fresh=buildData();STORES.forEach(s=>{DATA[s].forEach((r,i)=>{r.oh=fresh[s][i].oh;r.occ=fresh[s][i].occ;r.vac=fresh[s][i].vac;r.hp=fresh[s][i].hp;});});render();};
+  // Reservation CSV upload (analysis page)
+  const drop=document.getElementById('csv-drop'),inp=document.getElementById('csv-input');
+  if(drop&&inp){
+    drop.onclick=()=>inp.click();
+    drop.ondragover=e=>{e.preventDefault();drop.classList.add('drag');};
+    drop.ondragleave=()=>drop.classList.remove('drag');
+    drop.ondrop=e=>{e.preventDefault();drop.classList.remove('drag');if(e.dataTransfer.files[0])readCSV(e.dataTransfer.files[0]);};
+    inp.onchange=e=>{if(e.target.files[0])readCSV(e.target.files[0]);};
+  }
+}
+
+function render(){
+  renderNav();renderMonthSel();updateTopbar();
+  document.getElementById('page-title').textContent=TITLES[page];
+  const pages={dashboard:pageDashboard,monthly:pageMonthly,analysis:pageAnalysis,store:pageStore,compare:pageCompare,pulse:pagePulse,weekly:pageWeekly,gmail:pageGmailLog,yoy:pageYoY,strategy:pageStrategy,forecast:pageForecast,settings:pageSettings};
+  try{
+    document.getElementById('content').innerHTML=pages[page]();
+  }catch(e){
+    console.error('render error:',e);
+    document.getElementById('content').innerHTML='<div class="card" style="color:#ef4444;padding:20px">ページ読み込みエラー: '+e.message+'</div>';
+  }
+  bindEvents();
+}
+// 起動時に保存データを復元
+// 起動時：常にGoogleSheetsから取得（どの端末でも同じデータ）
+document.getElementById('content').innerHTML=`
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px">
+    <div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#0f3460;border-radius:50%;animation:spin .8s linear infinite"></div>
+    <div style="font-size:14px;color:#64748b;font-weight:600">スプレッドシートからデータ取得中...</div>
+    <div id="gs-status" style="font-size:11px;color:#94a3b8"></div>
+  </div>`;
+
+// キャッシュがあれば先に表示しておく（高速表示）
+loadSavedData();
+
+// Sheetsから取得（成功したら上書き、失敗したらキャッシュを使用）
+// 5秒後に強制render（フォールバック）
+const _renderTimeout=setTimeout(()=>{console.warn('タイムアウト - 強制render');render();},5000);
+
+loadFromGoogleSheets(false)
+  .then(()=>clearTimeout(_renderTimeout))
+  .catch(()=>{clearTimeout(_renderTimeout);render();});
+</script>
+</body>
+</html>
