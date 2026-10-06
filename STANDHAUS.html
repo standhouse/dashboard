@@ -2486,10 +2486,10 @@ function renderMonthSel(){
   (()=>{
     const sel=document.getElementById('month-sel');
     if(!sel)return;
+    const nowYM=new Date().getFullYear()+'/'+String(new Date().getMonth()+1).padStart(2,'0');
     const mi=MONTHS.indexOf(selMonth);
     const nowMI=MONTHS.indexOf(nowYM);
     const hasPrev=mi>0,hasNext=mi<MONTHS.length-1&&mi<nowMI;
-    const nowYM=new Date().getFullYear()+'/'+String(new Date().getMonth()+1).padStart(2,'0');
     const isNow=selMonth===nowYM;
     const [y,mo]=selMonth.split('/');
     const label=y+'年'+parseInt(mo)+'月'+(isNow?' ★':'');
