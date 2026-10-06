@@ -398,7 +398,7 @@ function loadWeeklyMemos(){
 function saveAllData(){
   try{
     // DATAを保存（月次集計データ、約50KB）
-    localStorage.setItem('sh_data_ver','19');
+    localStorage.setItem('sh_data_ver','20');
     localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
     localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
     if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
@@ -416,7 +416,7 @@ function loadSavedData(){
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
-      localStorage.setItem('sh_data_ver','19');
+      localStorage.setItem('sh_data_ver','20');
       return false;
     }
     const saved = localStorage.getItem('sh_data_v1');
@@ -2301,20 +2301,23 @@ function pageForecast(){
     return m1[1]+'/'+String(parseInt(m1[2])).padStart(2,'0');
   }
 
-  // 利用月別件数の集計（全受信メール対象）
-  const usageByMonth={};  // { "2026/10": 件数, ... }
-  let totalReceivedCount=0; // 受信済み全件数
+  // 利用月別件数の集計
+  const usageByMonth={};
+  let totalReceivedCount=0; // 今月受信済み全件数
   if(gmailData){
-    totalReceivedCount=gmailData.length;
     gmailData.forEach(row=>{
+      const recYM=getDateStr(row.receivedAt||'').slice(0,7); // "2026/10"
       const useYM=parseUseDate(row.dateTime);
       const st=matchStore(row.space);
-      if(!useYM)return;
 
-      // 利用月別に件数を集計
+      // 今月受信分のみカウント（予約ログとの整合性）
+      if(recYM!==thisYM)return;
+      totalReceivedCount++;
+
+      if(!useYM)return;
       usageByMonth[useYM]=(usageByMonth[useYM]||0)+1;
 
-      // 今月利用分のみカウント（件数・金額）
+      // 受信日が今月 かつ 利用日が今月 のみカウント
       if(useYM===thisYM){
         thisMonthGmailCount++;
         if(st)storeGmailCount[st]++;
