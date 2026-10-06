@@ -398,7 +398,7 @@ function loadWeeklyMemos(){
 function saveAllData(){
   try{
     // DATAを保存（月次集計データ、約50KB）
-    localStorage.setItem('sh_data_ver','14');
+    localStorage.setItem('sh_data_ver','18');
     localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
     localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
     if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
@@ -416,7 +416,7 @@ function loadSavedData(){
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
-      localStorage.setItem('sh_data_ver','14');
+      localStorage.setItem('sh_data_ver','18');
       return false;
     }
     const saved = localStorage.getItem('sh_data_v1');
@@ -1289,6 +1289,15 @@ const PREV_YEAR_DATA={
   "ECHOES京都中央":{sales:{"2025/01":69850,"2025/02":389200,"2025/03":1148620,"2025/04":369140,"2025/05":729837,"2025/06":720252,"2025/07":355795,"2025/08":168575,"2025/09":337150},fixed:{"2025/01":13244,"2025/02":21841,"2025/03":32914,"2025/04":15923,"2025/05":23608,"2025/06":23281,"2025/07":29131,"2025/08":28371,"2025/09":31134},gp:{"2025/01":-125276,"2025/02":122602,"2025/03":600220,"2025/04":68566,"2025/05":325332,"2025/06":333278,"2025/07":40723,"2025/08":-77498,"2025/09":36132}}
 };
 
+// グローバル日付パース関数（複数ページから利用）
+function getDateStr(raw){
+  const s=String(raw||'');
+  const m1=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if(m1)return m1[1]+'/'+m1[2].padStart(2,'0')+'/'+m1[3].padStart(2,'0');
+  const m2=s.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if(m2)return m2[1]+'/'+m2[2].padStart(2,'0')+'/'+m2[3].padStart(2,'0');
+  return s.split(' ')[0].replace(/-/g,'/');
+}
 function getPrevYM(ym){
   const p=ym.split('/');
   return (parseInt(p[0])-1)+'/'+p[1];
@@ -1415,17 +1424,6 @@ function pageGmailLog(){
     return end-start;
   }
 
-  function getDateStr(raw){
-    const s=String(raw||'');
-    // "2026/10/05 14:23" or "2026-10-05 14:23"
-    const m1=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-    if(m1)return m1[1]+'/'+m1[2].padStart(2,'0')+'/'+m1[3].padStart(2,'0');
-    // "2026年10月05日"
-    const m2=s.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-    if(m2)return m2[1]+'/'+m2[2].padStart(2,'0')+'/'+m2[3].padStart(2,'0');
-    return s.split(' ')[0].replace(/-/g,'/');
-  }
-
   const today=new Date();
   const todayStr=today.getFullYear()+'/'+String(today.getMonth()+1).padStart(2,'0')+'/'+String(today.getDate()).padStart(2,'0');
   const thisMonthStr=today.getFullYear()+'/'+String(today.getMonth()+1).padStart(2,'0');
@@ -1440,12 +1438,13 @@ function pageGmailLog(){
   let todaySales=0,todayCount=0,weekSales=0,weekCount=0,monthSales=0,monthCount=0;
 
   displayData.forEach(row=>{
-    const d=getDateStr(row.receivedAt);
+    const d=getDateStr(row.receivedAt);         // 受信日ベースで集計
     const amt=row.amount||0;
     const site=row.site||'その他';
     const space=row.space||'不明';
     const purpose=row.purpose||'不明';
 
+    // 今日・今週・今月は「受信日」ベースで集計
     if(d===todayStr){todaySales+=amt;todayCount++;}
     if(d>=thisWeekStartStr&&d<=todayStr){weekSales+=amt;weekCount++;}
     if(d.startsWith(thisMonthStr)){monthSales+=amt;monthCount++;}
@@ -1539,7 +1538,8 @@ function pageGmailLog(){
   const storeCards=STORES.map(st=>{
     const rows=periodFiltered.filter(r=>{
       const sp=r.space||'';
-      return sp.includes(st)||st.includes(sp.split('　')[0]);
+      if(!sp)return false;
+      return sp.includes(st)||(sp.length>=2&&st.includes(sp.slice(0,6)));
     });
     const durCount={};DUR_KEYS.forEach(k=>durCount[k]=0);
     rows.forEach(r=>{const k=getDurKey(r.dateTime);if(k)durCount[k]++;});
@@ -1596,17 +1596,17 @@ function pageGmailLog(){
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px">
       <div class="card" style="padding:14px 18px;border-left:4px solid #3B82F6">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u65e5\u306e\u4e88\u7d04</div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u65e5\u306e\u4e88\u7d04\uff08\u53d7\u4fe1\u65e5\uff09</div>
         <div style="font-size:24px;font-weight:800;color:#3B82F6">${todayCount}\u4ef6</div>
         <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${todaySales>0?fmtK(todaySales):'¥0'}</div>
       </div>
       <div class="card" style="padding:14px 18px;border-left:4px solid #10B981">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u9031\u306e\u4e88\u7d04</div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u9031\u306e\u4e88\u7d04\uff08\u53d7\u4fe1\u65e5\uff09</div>
         <div style="font-size:24px;font-weight:800;color:#10B981">${weekCount}\u4ef6</div>
         <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${weekSales>0?fmtK(weekSales):'¥0'}</div>
       </div>
       <div class="card" style="padding:14px 18px;border-left:4px solid #8B5CF6">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u6708\u306e\u4e88\u7d04\uff08\u78ba\u5b9a\u65e5\u30d9\u30fc\u30b9\uff09</div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u6708\u306e\u4e88\u7d04\uff08\u53d7\u4fe1\u65e5\uff09</div>
         <div style="font-size:24px;font-weight:800;color:#8B5CF6">${monthCount}\u4ef6</div>
         <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${monthSales>0?fmtK(monthSales):'¥0'}</div>
       </div>
@@ -2294,7 +2294,9 @@ function pageForecast(){
 
   // 利用月別件数の集計（全受信メール対象）
   const usageByMonth={};  // { "2026/10": 件数, ... }
+  let totalReceivedCount=0; // 受信済み全件数
   if(gmailData){
+    totalReceivedCount=gmailData.length;
     gmailData.forEach(row=>{
       const useYM=parseUseDate(row.dateTime);
       const st=matchStore(row.space);
@@ -2341,7 +2343,7 @@ function pageForecast(){
     const _ws2=new Date(today);_ws2.setDate(today.getDate()-today.getDay()+1);
     const wkStr=_ws2.getFullYear()+'/'+String(_ws2.getMonth()+1).padStart(2,'0')+'/'+String(_ws2.getDate()).padStart(2,'0');
     gmailData.forEach(row=>{
-      const d=getDateStr(row.receivedAt);
+      const d=getDateStr(row.dateTime); // 利用日ベース
       if(d>=wkStr&&d<=todayStr){thisWeekCount++;thisWeekAmt+=(row.amount||0);}
     });
   }
@@ -2412,9 +2414,10 @@ function pageForecast(){
           </div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:11px;color:#93c5fd;margin-bottom:2px">Gmail\u4e88\u7d04\u4ef6\u6570</div>
+          <div style="font-size:11px;color:#93c5fd;margin-bottom:2px">Gmail\u4e88\u7d04\uff08\u4eca\u6708\u5229\u7528\uff09</div>
           <div style="font-size:28px;font-weight:800">${thisMonthGmailCount}\u4ef6</div>
           <div style="font-size:11px;color:#93c5fd;margin-top:2px">\u4e88\u6e2c${projectedRes}\u4ef6 / \u6b8b${remaining}\u65e5</div>
+          <div style="font-size:10px;color:#7dd3d0;margin-top:3px">\u53d7\u4fe1\u5168\u4f53${totalReceivedCount}\u4ef6\u4e2d</div>
         </div>
       </div>
       <div style="background:rgba(255,255,255,.15);border-radius:6px;height:8px;margin-bottom:8px">
@@ -2435,9 +2438,10 @@ function pageForecast(){
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
       <div class="card" style="padding:12px 14px;border-left:3px solid #3B82F6">
-        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">今月予約件数（Gmail）</div>
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">今月予約件数（Gmail・利用日）</div>
         <div style="font-size:20px;font-weight:800;color:#3B82F6">${thisMonthGmailCount}件</div>
         <div style="font-size:9px;color:#94a3b8">予測: ${projectedRes}件</div>
+        <div style="font-size:9px;color:#64748b;margin-top:4px;padding-top:4px;border-top:1px solid #f1f5f9">受信済み全体 ${totalReceivedCount}件 中</div>
       </div>
       <div class="card" style="padding:12px 14px;border-left:3px solid #8B5CF6">
         <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">先月平均単価</div>
@@ -2483,7 +2487,8 @@ function renderMonthSel(){
     const sel=document.getElementById('month-sel');
     if(!sel)return;
     const mi=MONTHS.indexOf(selMonth);
-    const hasPrev=mi>0,hasNext=mi<MONTHS.length-1;
+    const nowMI=MONTHS.indexOf(nowYM);
+    const hasPrev=mi>0,hasNext=mi<MONTHS.length-1&&mi<nowMI;
     const nowYM=new Date().getFullYear()+'/'+String(new Date().getMonth()+1).padStart(2,'0');
     const isNow=selMonth===nowYM;
     const [y,mo]=selMonth.split('/');
@@ -2502,9 +2507,10 @@ function renderMonthSel(){
       const mm=String(i+1).padStart(2,'0');
       const ym=pickerY+'/'+mm;
       const exists=MONTHS.includes(ym);
+      const isFuture=ym>nowYM; // 未来月は選択不可
       const isSelected=selMonth===ym;
       const isNowM=nowYM===ym;
-      return exists
+      return (exists&&!isFuture)
         ?`<button onclick="event.stopPropagation();selMonth='${ym}';showMonthPicker=false;render()"
             style="background:${isSelected?'#0f3460':isNowM?'#eff6ff':'#f8fafc'};color:${isSelected?'#fff':isNowM?'#3b82f6':'#475569'};font-weight:${isSelected||isNowM?700:500}">${i+1}月</button>`
         :`<button disabled style="background:#f8fafc;color:#e2e8f0;cursor:default">${i+1}月</button>`;
