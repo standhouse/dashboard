@@ -412,7 +412,7 @@ function loadSavedData(){
   try{
     // バージョンチェック（フィールド名変更後は古いデータを破棄）
     const ver = localStorage.getItem('sh_data_ver');
-    if(ver !== '7') {
+    if(ver !== '20') {
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
@@ -1437,6 +1437,12 @@ function pageGmailLog(){
   const durationBuckets={'〜1時間':0,'1〜2時間':0,'2〜3時間':0,'3〜5時間':0,'5時間以上':0};
   let todaySales=0,todayCount=0,weekSales=0,weekCount=0,monthSales=0,monthCount=0;
 
+  // デバッグ：全件数と今月件数を確認
+  console.log('[予約ログ] 総件数:', displayData.length, '/ thisMonthStr:', thisMonthStr);
+  const debugMonthRows = displayData.filter(row=>getDateStr(row.receivedAt).startsWith(thisMonthStr));
+  console.log('[予約ログ] 今月受信件数:', debugMonthRows.length);
+  debugMonthRows.forEach((row,i)=>console.log('  今月行'+i, getDateStr(row.receivedAt), row.receivedAt, row.space));
+
   displayData.forEach(row=>{
     const d=getDateStr(row.receivedAt);         // 受信日ベースで集計
     const amt=row.amount||0;
@@ -1616,6 +1622,7 @@ function pageGmailLog(){
         <div style="font-size:10px;color:#64748b;margin-bottom:4px">\u4eca\u6708\u306e\u4e88\u7d04\uff08\u53d7\u4fe1\u65e5\uff09</div>
         <div style="font-size:24px;font-weight:800;color:#8B5CF6">${monthCount}\u4ef6</div>
         <div style="font-size:14px;font-weight:700;color:#0f3460;margin-top:2px">${monthSales>0?fmtK(monthSales):'¥0'}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:4px">\u53d6\u5f97\u5168\u4f53: ${displayData.length}\u4ef6</div>
       </div>
     </div>
 
