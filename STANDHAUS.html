@@ -2749,6 +2749,9 @@ async function fetchGmailLog(){
     lines.slice(1).forEach(line=>{
       const c=parseLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
       if(!c[ix.receivedAt]) return;
+      // 受信日時が正しい日付形式（数字で始まる）でない行を除外
+      const recRaw = c[ix.receivedAt];
+      if(!/^\d{4}/.test(recRaw)) return; // 「利用日時：...」など不正データを除外
       const amount=ix.amount>=0?parseInt((c[ix.amount]||'').replace(/,/g,''))||0:0;
       rows.push({
         receivedAt: c[ix.receivedAt],
