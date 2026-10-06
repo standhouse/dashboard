@@ -2743,6 +2743,8 @@ async function fetchGmailLog(){
       amount:     h.findIndex(v=>v==='\u91d1\u984d'),
     };
 
+    console.log('[fetchGmailLog] 総行数(ヘッダー含む):', lines.length, '/ 列インデックス:', ix);
+    console.log('[fetchGmailLog] ヘッダー:', h);
     const rows=[];
     lines.slice(1).forEach(line=>{
       const c=parseLine(line).map(x=>x.replace(/^"|"$/g,'').trim());
@@ -2756,6 +2758,11 @@ async function fetchGmailLog(){
         amount,
       });
     });
+    console.log('[fetchGmailLog] パース後件数:', rows.length);
+    // 10月受信のものだけ抽出してログ
+    const oct = rows.filter(r=>r.receivedAt.startsWith('2026/10')||r.receivedAt.startsWith('2026-10'));
+    console.log('[fetchGmailLog] 10月受信件数:', oct.length);
+    oct.forEach((r,i)=>console.log('  oct['+i+']', r.receivedAt, r.space));
     return rows.length>0?rows:null;
   }catch(e){
     console.error('GmailLog fetch error:',e);
