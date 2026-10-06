@@ -398,7 +398,7 @@ function loadWeeklyMemos(){
 function saveAllData(){
   try{
     // DATAを保存（月次集計データ、約50KB）
-    localStorage.setItem('sh_data_ver','18');
+    localStorage.setItem('sh_data_ver','19');
     localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
     localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
     if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
@@ -416,7 +416,7 @@ function loadSavedData(){
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
-      localStorage.setItem('sh_data_ver','18');
+      localStorage.setItem('sh_data_ver','19');
       return false;
     }
     const saved = localStorage.getItem('sh_data_v1');
@@ -1535,11 +1535,18 @@ function pageGmailLog(){
   const periodTabs=[['today','今日'],['week','1週間'],['month','1ヶ月'],['all','全期間']].map(([v,l])=>
     `<button class="gp-tab" data-v="${v}" style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;background:${gmailPeriod===v?'#0f3460':'#f1f5f9'};color:${gmailPeriod===v?'#fff':'#64748b'}">${l}</button>`
   ).join('');
+  const STORES_BY_LEN2=[...STORES].sort((a,b)=>b.length-a.length);
+  function matchStoreExact(spaceName){
+    if(!spaceName)return null;
+    const sp=String(spaceName);
+    for(const s of STORES_BY_LEN2){
+      if(sp.includes(s)||s.includes(sp.slice(0,Math.min(sp.length,8))))return s;
+    }
+    return null;
+  }
   const storeCards=STORES.map(st=>{
     const rows=periodFiltered.filter(r=>{
-      const sp=r.space||'';
-      if(!sp)return false;
-      return sp.includes(st)||(sp.length>=2&&st.includes(sp.slice(0,6)));
+      return matchStoreExact(r.space||'')===st;
     });
     const durCount={};DUR_KEYS.forEach(k=>durCount[k]=0);
     rows.forEach(r=>{const k=getDurKey(r.dateTime);if(k)durCount[k]++;});
@@ -2213,6 +2220,8 @@ function pageForecast(){
   const year=today.getFullYear();
   const month=today.getMonth()+1;
   const day=today.getDate();
+  const todayStr=year+'/'+String(month).padStart(2,'0')+'/'+String(day).padStart(2,'0');
+  const thisMonthStr=year+'/'+String(month).padStart(2,'0');
   const daysInMonth=new Date(year,month,0).getDate();
   const elapsed=day;
   const remaining=daysInMonth-day;
