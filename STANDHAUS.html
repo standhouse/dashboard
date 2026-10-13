@@ -306,7 +306,7 @@ let selYoYStore=null;
 let weeklyMemos={};
 let gmailData=null;
 let showMonthPicker=false;
-let gmailPeriod="week"; // today/week/month/all // GmailログDBから取得した予約データ
+let gmailPeriod="month"; // today/week/month/all // GmailログDBから取得した予約データ
 let weeklyView='store';
 let yoyMetric="sales";
 
@@ -398,7 +398,7 @@ function loadWeeklyMemos(){
 function saveAllData(){
   try{
     // DATAを保存（月次集計データ、約50KB）
-    localStorage.setItem('sh_data_ver','20');
+    localStorage.setItem('sh_data_ver','21');
     localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
     localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
     if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
@@ -412,11 +412,11 @@ function loadSavedData(){
   try{
     // バージョンチェック（フィールド名変更後は古いデータを破棄）
     const ver = localStorage.getItem('sh_data_ver');
-    if(ver !== '20') {
+    if(ver !== '21') {
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
-      localStorage.setItem('sh_data_ver','20');
+      localStorage.setItem('sh_data_ver','21');
       return false;
     }
     const saved = localStorage.getItem('sh_data_v1');
@@ -1528,25 +1528,26 @@ function pageGmailLog(){
   const now2=new Date();
   const _cutoffDate=(days)=>{const d=new Date(now2);d.setDate(d.getDate()-days);return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');};
   const now2Str=now2.getFullYear()+'/'+String(now2.getMonth()+1).padStart(2,'0')+'/'+String(now2.getDate()).padStart(2,'0');
-  const periodCutoffStr={
-    today:now2Str,
-    week: _cutoffDate(7),
-    month:_cutoffDate(30),
-    all:  '2000/01/01',
-  }[gmailPeriod]||'2000/01/01';
+  // KPIカードと同じ期間軸：今日/今週/今月/全期間（受信日ベース）
+  const _weekStartStr=(()=>{const d=new Date(now2);d.setDate(d.getDate()-d.getDay()+1);return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');})();
+  const _monthStartStr=now2.getFullYear()+'/'+String(now2.getMonth()+1).padStart(2,'0')+'/01';
   const periodFiltered=displayData.filter(row=>{
     const d=getDateStr(row.receivedAt);
-    return d>=periodCutoffStr;
+    if(gmailPeriod==='today')  return d===now2Str;
+    if(gmailPeriod==='week')   return d>=_weekStartStr && d<=now2Str;
+    if(gmailPeriod==='month')  return d>=_monthStartStr && d<=now2Str;
+    return true; // all
   });
-  const periodTabs=[['today','今日'],['week','1週間'],['month','1ヶ月'],['all','全期間']].map(([v,l])=>
+  const periodTabs=[['today','今日'],['week','今週'],['month','今月'],['all','全期間']].map(([v,l])=>
     `<button class="gp-tab" data-v="${v}" style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;background:${gmailPeriod===v?'#0f3460':'#f1f5f9'};color:${gmailPeriod===v?'#fff':'#64748b'}">${l}</button>`
   ).join('');
   const STORES_BY_LEN2=[...STORES].sort((a,b)=>b.length-a.length);
   function matchStoreExact(spaceName){
     if(!spaceName)return null;
     const sp=String(spaceName);
+    // 正方向のみ: スペース名に店舗名が含まれる（長い順に検索して誤マッチ防止）
     for(const s of STORES_BY_LEN2){
-      if(sp.includes(s)||s.includes(sp.slice(0,Math.min(sp.length,8))))return s;
+      if(sp.includes(s))return s;
     }
     return null;
   }
@@ -2293,12 +2294,8 @@ function pageForecast(){
   function matchStore(spaceName){
     if(!spaceName)return null;
     const sp=String(spaceName);
-    // 正方向: スペース名に店舗名が含まれる
-    const m1=STORES_BY_LEN.find(s=>sp.includes(s));
-    if(m1)return m1;
-    // 逆方向: 店舗名にスペース名の先頭6文字が含まれる
-    const sp6=sp.slice(0,6);
-    return STORES_BY_LEN.find(s=>s.includes(sp6))||null;
+    // 正方向のみ: スペース名に店舗名が含まれる（長い順に検索して誤マッチ防止）
+    return STORES_BY_LEN.find(s=>sp.includes(s))||null;
   }
   // 利用日のパース（"2026年09月22日..." or "2026/9/22..."）
   function parseUseDate(dateTime){
@@ -2324,13 +2321,15 @@ function pageForecast(){
       if(!useYM)return;
       usageByMonth[useYM]=(usageByMonth[useYM]||0)+1;
 
-      // 受信日が今月 かつ 利用日が今月 のみカウント
+      // 受信日が今月 かつ 利用日が今月 のみカウント（店舗マッチしたもののみ）
       if(useYM===thisYM){
-        thisMonthGmailCount++;
-        if(st)storeGmailCount[st]++;
-        if(row.amount>0){
-          thisMonthUsageAmt+=(row.amount||0);
-          if(st)storeUsageAmt[st]=(storeUsageAmt[st]||0)+(row.amount||0);
+        if(st){
+          thisMonthGmailCount++;
+          storeGmailCount[st]++;
+          if(row.amount>0){
+            thisMonthUsageAmt+=(row.amount||0);
+            storeUsageAmt[st]=(storeUsageAmt[st]||0)+(row.amount||0);
+          }
         }
       }
     });
