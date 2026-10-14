@@ -398,7 +398,7 @@ function loadWeeklyMemos(){
 function saveAllData(){
   try{
     // DATAを保存（月次集計データ、約50KB）
-    localStorage.setItem('sh_data_ver','21');
+    localStorage.setItem('sh_data_ver','27');
     localStorage.setItem('sh_data_v1', JSON.stringify(DATA));
     localStorage.setItem('sh_realdata_v1', JSON.stringify(usingRealData));
     if(costCSVData) localStorage.setItem('sh_costcsv_v1', JSON.stringify(costCSVData));
@@ -412,11 +412,11 @@ function loadSavedData(){
   try{
     // バージョンチェック（フィールド名変更後は古いデータを破棄）
     const ver = localStorage.getItem('sh_data_ver');
-    if(ver !== '21') {
+    if(ver !== '27') {
       // バージョン変更時は全キャッシュをクリア
       ['sh_data_v1','sh_cfg1','sh_costcsv_v1','sh_occcsv_v1','sh_gs_updated',
        'sh_weekly_memos'].forEach(k=>localStorage.removeItem(k));
-      localStorage.setItem('sh_data_ver','21');
+      localStorage.setItem('sh_data_ver','27');
       return false;
     }
     const saved = localStorage.getItem('sh_data_v1');
@@ -1414,9 +1414,15 @@ function pageGmailLog(){
     {receivedAt:'2026/09/13 08:10:00',site:'スペースマーケット',space:'SHEERS京都七条',dateTime:'2026年09月18日 14:00〜17:00',amount:6300},
   ] : gmailData;
 
-  // 予約時間を分に変換（"14:00〜17:00" → 180分）
+  // 予約時間を分に変換（"14:00〜17:00" or "14時00分〜17時00分" → 180分）
   function parseDuration(dateTime){
-    const m=String(dateTime||'').match(/(\d{1,2}):(\d{2})[〜~\-～](\d{1,2}):(\d{2})/);
+    const s=String(dateTime||'');
+    // コロン形式: "14:00〜17:00" or "14:00 〜 17:00"
+    let m=s.match(/(\d{1,2}):(\d{2})\s*[〜~\-～]\s*(\d{1,2}):(\d{2})/);
+    if(!m){
+      // 時分形式: "14時00分〜17時00分" or "14時30分"
+      m=s.match(/(\d{1,2})時(\d{2})分[〜~\-～](\d{1,2})時(\d{2})分/);
+    }
     if(!m)return null;
     const start=parseInt(m[1])*60+parseInt(m[2]);
     let end=parseInt(m[3])*60+parseInt(m[4]);
@@ -2286,8 +2292,11 @@ function pageForecast(){
 
   // ── 今月の予約件数（Gmailログから）──
   let thisMonthGmailCount=0,thisMonthUsageAmt=0;
+  let thisMonthNewCount=0;    // 今月受信・今月利用
+  let thisMonthCarryCount=0;  // 先月以前受信・今月利用（繰越）
   const storeGmailCount={},storeUsageAmt={};
-  STORES.forEach(s=>{storeGmailCount[s]=0;storeUsageAmt[s]=0;});
+  const storeNewCount={},storeCarryCount={};
+  STORES.forEach(s=>{storeGmailCount[s]=0;storeUsageAmt[s]=0;storeNewCount[s]=0;storeCarryCount[s]=0;});
 
   // 店舗名を長い順にソート（OASIS京都❷がOASIS京都に誤マッチしないよう）
   const STORES_BY_LEN=[...STORES].sort((a,b)=>b.length-a.length);
@@ -2314,22 +2323,26 @@ function pageForecast(){
       const useYM=parseUseDate(row.dateTime);
       const st=matchStore(row.space);
 
-      // 今月受信分のみカウント（予約ログとの整合性）
-      if(recYM!==thisYM)return;
-      totalReceivedCount++;
+      // 今月受信分：内訳カウント用
+      if(recYM===thisYM){
+        totalReceivedCount++;
+        if(useYM) usageByMonth[useYM]=(usageByMonth[useYM]||0)+1;
+      }
 
-      if(!useYM)return;
-      usageByMonth[useYM]=(usageByMonth[useYM]||0)+1;
-
-      // 受信日が今月 かつ 利用日が今月 のみカウント（店舗マッチしたもののみ）
-      if(useYM===thisYM){
-        if(st){
-          thisMonthGmailCount++;
-          storeGmailCount[st]++;
-          if(row.amount>0){
-            thisMonthUsageAmt+=(row.amount||0);
-            storeUsageAmt[st]=(storeUsageAmt[st]||0)+(row.amount||0);
-          }
+      // 利用日が今月なら受信日問わずカウント（着地予測は利用日ベース）
+      if(useYM===thisYM&&st){
+        thisMonthGmailCount++;
+        storeGmailCount[st]++;
+        if(recYM===thisYM){
+          thisMonthNewCount++;
+          storeNewCount[st]++;
+        } else {
+          thisMonthCarryCount++;
+          storeCarryCount[st]++;
+        }
+        if(row.amount>0){
+          thisMonthUsageAmt+=(row.amount||0);
+          storeUsageAmt[st]=(storeUsageAmt[st]||0)+(row.amount||0);
         }
       }
     });
@@ -2355,14 +2368,15 @@ function pageForecast(){
   const totalActual=mi>=0?STORES.reduce((a,s)=>a+DATA[s][mi].sales,0):0;
   const totalGP    =mi>=0?STORES.reduce((a,s)=>a+DATA[s][mi].gp,0):0;
 
-  // ── 今週のGmail予約 ──
+  // ── 今週のGmail予約（受信日ベース・店舗マッチしたもののみ）──
   let thisWeekCount=0,thisWeekAmt=0;
   if(gmailData){
     const _ws2=new Date(today);_ws2.setDate(today.getDate()-today.getDay()+1);
     const wkStr=_ws2.getFullYear()+'/'+String(_ws2.getMonth()+1).padStart(2,'0')+'/'+String(_ws2.getDate()).padStart(2,'0');
     gmailData.forEach(row=>{
-      const d=getDateStr(row.dateTime); // 利用日ベース
-      if(d>=wkStr&&d<=todayStr){thisWeekCount++;thisWeekAmt+=(row.amount||0);}
+      const d=getDateStr(row.receivedAt); // 受信日ベース（予約ログと統一）
+      const st=matchStore(row.space||'');
+      if(st&&d>=wkStr&&d<=todayStr){thisWeekCount++;thisWeekAmt+=(row.amount||0);}
     });
   }
 
@@ -2376,9 +2390,16 @@ function pageForecast(){
     const projRes=elapsed>0?Math.round(tRes/elapsed*daysInMonth):0;
     const projRemainRes=elapsed>0?Math.round((tRes/elapsed)*remaining):0;
     const proj=confirmedStoreAmt+Math.round(projRemainRes*pAvg);
-    // 今月統合DBの粗利
-    const gp=mi>=0?DATA[s][mi].gp:0;
-    const gpProj=mi>=0&&DATA[s][mi].sales>0?Math.round(gp/DATA[s][mi].sales*proj):0;
+    // 前年同月（2025/10など）の粗利率で着地予測売上から粗利を推計
+    const sameMonthStr=(year-1)+'/'+String(month).padStart(2,'0'); // "2025/10"
+    const smIdx=MONTHS.indexOf(sameMonthStr);
+    const smGP  =smIdx>=0?DATA[s][smIdx].gp:0;
+    const smSales=smIdx>=0?DATA[s][smIdx].sales:0;
+    // 前年同月がなければ先月を使う
+    const refGP   =smSales>0?smGP   :(pi>=0?DATA[s][pi].gp:0);
+    const refSales=smSales>0?smSales:(pi>=0?DATA[s][pi].sales:0);
+    const refMargin=refSales>0?refGP/refSales:0;
+    const gpProj=refMargin!==0&&proj>0?Math.round(refMargin*proj):0;
     const gpOk=gpProj>=STORE_TARGET;
     const dailyNeeded=remaining>0&&pAvg>0?
       Math.max(0,Math.ceil((STORE_TARGET-tRes*pAvg)/(remaining*pAvg))):0;
@@ -2392,9 +2413,13 @@ function pageForecast(){
         </span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px">
-        <div style="text-align:center;background:#f8fafc;border-radius:5px;padding:6px 4px">
-          <div style="color:#94a3b8;margin-bottom:2px">\u4eca\u6708\u4ef6\u6570</div>
-          <div style="font-size:15px;font-weight:800;color:#0f3460">${tRes}<span style="font-size:9px">\u4ef6</span></div>
+        <div style="background:#f8fafc;border-radius:5px;padding:6px 4px">
+          <div style="color:#94a3b8;margin-bottom:2px;font-size:9px;text-align:center">\u4eca\u6708\u4ef6\u6570</div>
+          <div style="text-align:center;font-size:15px;font-weight:800;color:#0f3460">${tRes}<span style="font-size:9px">\u4ef6</span></div>
+          <div style="margin-top:4px;border-top:1px solid #e2e8f0;padding-top:3px;font-size:9px">
+            <div style="display:flex;justify-content:space-between;color:#64748b"><span>\u4eca\u6708\u53d7\u4fe1</span><span style="font-weight:700;color:#0f3460">${storeNewCount[s]}\u4ef6</span></div>
+            <div style="display:flex;justify-content:space-between;color:#64748b"><span>\u7e70\u8d8a</span><span style="font-weight:700;color:#7c3aed">${storeCarryCount[s]}\u4ef6</span></div>
+          </div>
         </div>
         <div style="text-align:center;background:#f8fafc;border-radius:5px;padding:6px 4px">
           <div style="color:#94a3b8;margin-bottom:2px">\u4e88\u6e2c\u4ef6\u6570</div>
